@@ -1,28 +1,130 @@
-# GameStats — Performance Intelligence
+# 🎮 GameStats — Performance Intelligence
 
-A cinematic Streamlit dashboard for gaming-session analytics and hardware metrics, with **32 curated themes across four collections**. Choose a collection and theme in the sidebar, then select one of two theme behaviours: **Palette only** changes colours while keeping the interface structure consistent; **Full experience** also changes typography, panel shape, spacing character, and other visual details by collection. The visual system uses softer accent colours, readable secondary text, restrained glow effects, subtle pop/hover feedback, and reduced-motion support to reduce eye strain. The Command Menu has a built-in ? guide explaining each section, how it works, and why to use it.
+### _Read the numbers. Find the edge._
 
-### Theme collections
-- **Game Worlds (8):** Los Santos / GTA V, Protocol / VALORANT, Counter-Strike 2, Night City / Cyberpunk, The Outlands / Apex, Overworld / Minecraft, The Lands Between / Elden Ring, Red Dead / Frontier.
-- **Neon & Sci-Fi (8):** Neon Noir, Synthwave Dusk, Arctic Cyber, Plasma Core, Deep Space, Holographic, Circuit Garden, Quantum Blue.
-- **Earth & Luxe (8):** Moss & Stone, Sandstone, Forest Retreat, Terracotta Studio, Olive & Brass, Midnight Walnut, Desert Dusk, Slate & Sage.
-- **Studio & Minimal (8):** Obsidian, Graphite, Ivory & Ink, Midnight Blue, Burgundy Velvet, Espresso, Moonstone, Coastal Mist.
+**GameStats** is a gaming performance analytics dashboard built with Python, Pandas, Plotly and Streamlit. It transforms gaming statistics and recorded hardware metrics into interactive visualisations, player comparisons and data-driven insights — all wrapped in a customisable, futuristic interface.
 
-Themes affect presentation only. The supplied dataset remains the same regardless of the selected theme. Web fonts load from Google Fonts when internet access is available; system fallbacks are included.
-## Features
-- Command Center with FPS, KDA, win rate, score, sessions, player count and hardware KPI cards
-- Player rankings by score, KDA, FPS, kills, win rate or wins, plus a two-player comparison view
-- Explainable signal briefing based on currently filtered data
-- Broad sanity checks for FPS, win rate, CPU/GPU usage and GPU temperature; flagged values are not automatically changed
-- Hardware Lab with FPS and temperature distributions and utilization comparisons
-- Intel & Correlations with a correlation heatmap and score-by-mode analysis
-- Data Explorer with text search, data-quality details and CSV exports
-- Sidebar filters and compatible CSV upload
-- Command Menu help popover explaining all five pages and shared controls
-- Subtle hover highlights and micro-interactions, with reduced-motion support
-- Robust default dataset discovery from `data/` and the project root
+Explore player performance. Investigate hardware behaviour. Discover patterns hidden in the data.
 
-## Project structure
+---
+
+## ✦ The Experience
+
+GameStats combines analytical functionality with a premium, gaming-inspired interface.
+
+- 🎨 **32 curated themes** across four visual collections.
+- 🌓 **Two customisation modes:** Palette Only and Full Experience.
+- 📊 **Interactive analytics** for gaming performance and hardware metrics.
+- ⚔️ **Player rankings and comparisons** across multiple performance indicators.
+- 🧠 **Signal Briefing** with observations derived from the currently filtered dataset.
+- 🖥️ **Hardware Lab** for exploring FPS, utilisation and temperature metrics.
+- 🔬 **Correlation analysis** to investigate relationships between recorded variables.
+- 🗂️ **Data Explorer** with search, data-quality checks and CSV exports.
+- ✨ **Subtle micro-interactions**, refined typography and accessible motion preferences.
+- 📁 **CSV support** for exploring compatible datasets.
+
+---
+
+## 🎨 Make It Yours
+
+GameStats features four curated theme collections, each designed for a different visual preference.
+
+| Collection | Visual direction | Examples |
+|---|---|---|
+| 🎮 Game Worlds | Iconic gaming-inspired aesthetics | GTA V, VALORANT, Counter-Strike 2, Cyberpunk |
+| 🌌 Neon & Sci-Fi | Futuristic colours and cinematic interfaces | Neon Noir, Deep Space, Holographic |
+| 🌿 Earth & Luxe | Muted, natural and premium palettes | Moss & Stone, Sandstone, Olive & Brass |
+| ◻️ Studio & Minimal | Clean, understated and sophisticated styles | Obsidian, Ivory & Ink, Moonstone |
+
+Each collection contains eight themes, giving you **32 curated themes** in total.
+
+### Two ways to customise
+
+**Palette Only**
+
+Change the colour palette while retaining a consistent interface structure.
+
+**Full Experience**
+
+Change the visual character of the interface, including typography, panel styling and spacing, according to the selected collection.
+
+The design focuses on readable text, balanced contrast, restrained highlights and subtle interactions rather than excessive glow or distracting motion.
+
+> Themes change the presentation of the dashboard, not the underlying dataset or analytical results.
+
+---
+
+## 📊 Explore the Command Menu
+
+### 01 — Command Center
+
+Your overview of gaming performance.
+
+- Review key performance indicators.
+- Explore average FPS, KDA, win rate and score.
+- Inspect player and session statistics.
+- Read automatically generated observations from the filtered data.
+
+**Purpose:** Understand the overall performance picture at a glance.
+
+### 02 — Player Rankings
+
+Compare player performance using different metrics.
+
+- Rank players by score, KDA, FPS, kills, win rate or wins.
+- Explore player statistics.
+- Compare two players side by side.
+
+**Purpose:** Identify performance differences and understand where players stand across selected metrics.
+
+### 03 — Hardware Lab
+
+Explore the hardware metrics recorded in the dataset.
+
+- Investigate FPS distributions.
+- Examine recorded GPU temperature.
+- Compare CPU/GPU utilisation with frame rates.
+
+**Purpose:** Explore how recorded hardware metrics vary alongside gaming performance.
+
+### 04 — Intel & Correlations
+
+Investigate statistical relationships in the data.
+
+- Explore a correlation heatmap.
+- Analyse relationships between numeric variables.
+- Compare performance scores across game modes.
+
+**Purpose:** Identify patterns worth investigating without assuming that correlation proves causation.
+
+### 05 — Data Explorer
+
+Inspect the underlying records.
+
+- Search the dataset.
+- Review columns and data types.
+- Check missing values and potential data-quality issues.
+- Export data for further analysis.
+
+**Purpose:** Make the analysis transparent and let users inspect the records behind the charts.
+
+---
+
+## 🧠 Technology Stack
+
+| Technology | Role |
+|---|---|
+| Python | Core application logic |
+| Pandas | Data loading, filtering and analysis |
+| Streamlit | Interactive web application |
+| Plotly | Interactive charts and visualisations |
+| CSS | Custom styling and interface polish |
+| CSV | Dataset storage and input |
+
+---
+
+## 📂 Project Structure
+
 ```text
 GameStats/
 ├── app.py
@@ -39,31 +141,112 @@ GameStats/
     └── gta5_player_leaderboard.csv
 ```
 
-## Run on Windows 10
-1. Install Python 3.10 or newer from https://www.python.org/downloads/. During setup, enable **Add Python to PATH**.
-2. Extract this project folder.
-3. Double-click `run_gamestats.bat`.
-4. Wait for the app to open in your browser.
+---
 
-If needed, open Command Prompt in the project folder and run:
-```bat
-py -m venv .venv
-.venv\Scripts\activate
-py -m pip install -r requirements.txt
-py -m streamlit run app.py
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Python 3.10 or newer
+- Git (optional, for cloning the repository)
+- A web browser
+
+### Option 1 — Run on Windows
+
+**1. Clone the repository**
+
+Replace `YOUR_USERNAME` with your GitHub username.
+
+```bash
+git clone https://github.com/YOUR_USERNAME/GameStats.git
+cd GameStats
 ```
 
-## Deploy with GitHub + Streamlit Community Cloud
-1. Upload the project files and the complete `data/` folder to GitHub. Do **not** upload `.venv`.
-2. In Streamlit Community Cloud, create an app from your repository, select branch `main`, and set the main file path to `app.py`.
-3. Deploy. Streamlit installs dependencies from `requirements.txt`.
+**2. Create a virtual environment**
 
-## Dataset behaviour
-The app loads `data/gta5_cleaned_data.csv` first, then `data/game_stats.csv`. It also supports those filenames at the project root as a fallback. A CSV can also be uploaded from the sidebar.
+```bash
+py -m venv .venv
+```
 
-The provided sample dataset contains 300 rows. Treat its readings as sample data; the app does not read live CPU/GPU sensors and does not currently connect to a game API.
+**3. Activate the environment**
 
-## Troubleshooting
-- **No dataset found:** ensure `data/gta5_cleaned_data.csv` or `data/game_stats.csv` is committed to GitHub inside `data/`.
-- **ModuleNotFoundError:** confirm `requirements.txt` is committed and wait for Streamlit Cloud to install it.
-- **App did not refresh:** open the Streamlit app menu and use reboot/restart if available, or wait for the latest GitHub commit to deploy.
+```bash
+.venv\Scripts\activate
+```
+
+**4. Install dependencies**
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+**5. Launch GameStats**
+
+```bash
+python -m streamlit run app.py
+```
+
+The application will open in your browser. If it doesn't, open the local URL printed in your terminal.
+
+**Alternative:** If you downloaded the project ZIP, extract it and double-click `run_gamestats.bat`.
+
+### Option 2 — Deploy with Streamlit Community Cloud
+
+1. Push the project to a GitHub repository.
+2. Ensure `app.py`, `requirements.txt` and the complete `data/` folder are committed.
+3. Open [Streamlit Community Cloud](https://share.streamlit.io/).
+4. Create a new app and connect your repository.
+5. Select the `main` branch and set the main file path to `app.py`.
+6. Deploy and wait for the dependencies to install.
+
+---
+
+## 📁 Dataset & Data Integrity
+
+The supplied dataset contains **300 records and 19 columns** in `gta5_cleaned_data.csv`.
+
+The data includes player statistics, game modes, kills, deaths, assists, wins, match counts, playtime, FPS measurements, recorded hardware metrics, score, KDA and win rate.
+
+GameStats attempts to load its default dataset from the `data/` directory and supports compatible CSV uploads through the sidebar.
+
+### Important limitations
+
+- The supplied records may be synthetic or sample data; they should not be interpreted as verified real-world player results.
+- Hardware metrics are read from the dataset. GameStats does **not** currently monitor live CPU/GPU sensors.
+- The application does not automatically retrieve live match statistics from GTA V, VALORANT or Counter-Strike.
+- Correlation indicates statistical association, not proof of causation.
+- Potentially invalid values should be investigated rather than silently treated as correct measurements.
+
+---
+
+## 🔍 Why GameStats?
+
+Gaming generates data that can tell us more than just who won a match.
+
+GameStats explores how player statistics, game modes and recorded hardware metrics can be analysed together. By combining interactive visualisation with data exploration, the project demonstrates how a Python analytics workflow can become an accessible application.
+
+The goal is simple:
+
+**Make gaming data easier to explore, understand and communicate.**
+
+---
+
+## 🛠️ Troubleshooting
+
+| Issue | What to check |
+|---|---|
+| No dataset found | Confirm the expected CSV files are inside `data/`. |
+| Missing Python module | Activate the virtual environment and install `requirements.txt`. |
+| Dashboard fails to launch | Check the terminal for the complete error message. |
+| Theme fonts do not load | Check internet access; system font fallbacks are available. |
+| Cloud deployment fails | Verify the main file path, dependencies and committed datasets. |
+
+---
+
+## 👾 Project Details
+
+**Project:** GameStats — Performance Intelligence  
+**Category:** Gaming Analytics · Data Analysis · Data Visualisation  
+**Built with:** Python · Pandas · Plotly · Streamlit
+
+*Explore the data. Understand the patterns. Find the edge.*
