@@ -1,6 +1,6 @@
 # GameStats — Performance Intelligence
 
-A cinematic Streamlit dashboard for gaming-session analytics and hardware metrics, with **32 curated themes across four collections**. Choose a collection and theme in the sidebar, then select one of two theme behaviours: **Palette only** changes colours while keeping the interface structure consistent; **Full experience** also changes typography, panel shape, spacing character, and other visual details by collection. The visual system uses softer accent colours, muted secondary text, restrained glow effects, subtle motion, and reduced-motion support to reduce eye strain.
+A cinematic Streamlit dashboard for gaming-session analytics and hardware metrics, with **32 curated themes across four collections**. Choose a collection and theme in the sidebar, then select one of two theme behaviours: **Palette only** changes colours while keeping the interface structure consistent; **Full experience** also changes typography, panel shape, spacing character, and other visual details by collection. The visual system uses softer accent colours, readable secondary text, restrained glow effects, subtle pop/hover feedback, and reduced-motion support to reduce eye strain. The Command Menu has a built-in ? guide explaining each section, how it works, and why to use it.
 
 ### Theme collections
 - **Game Worlds (8):** Los Santos / GTA V, Protocol / VALORANT, Counter-Strike 2, Night City / Cyberpunk, The Outlands / Apex, Overworld / Minecraft, The Lands Between / Elden Ring, Red Dead / Frontier.
@@ -18,6 +18,8 @@ Themes affect presentation only. The supplied dataset remains the same regardles
 - Intel & Correlations with a correlation heatmap and score-by-mode analysis
 - Data Explorer with text search, data-quality details and CSV exports
 - Sidebar filters and compatible CSV upload
+- Command Menu help popover explaining all five pages and shared controls
+- Subtle hover highlights and micro-interactions, with reduced-motion support
 - Robust default dataset discovery from `data/` and the project root
 
 ## Project structure

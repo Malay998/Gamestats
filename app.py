@@ -99,16 +99,56 @@ with st.sidebar:
         style = {"display": "Space Grotesk", "body": "Space Grotesk", "mono": "DM Mono", "radius": "14px", "tracking": "-0.045em", "shadow": "none"}
     st.caption(f"{len(THEMES)} themes · {theme_group.title()} · {theme_mode}")
     st.divider()
+    menu_head, menu_help = st.columns([0.82, 0.18], vertical_alignment="center")
+    menu_head.markdown("#### COMMAND MENU")
+    with menu_help.popover("?", help="What does each section do?", use_container_width=True):
+        st.markdown("### Command menu guide")
+        st.caption("What each section shows, how it works, and why it matters.")
+        st.markdown("""
+**01 · Command Center**  
+**What:** A quick overview of the currently selected dataset: average FPS, KDA, win rate, score, session count and hardware readings.  
+**How it works:** Recalculates the KPIs, charts and short observations from your active filters.  
+**Why use it:** Get the main performance picture in seconds and spot patterns worth investigating.
+
+---
+**02 · Player Rankings**  
+**What:** A leaderboard ranked by score, KDA, FPS, kills, win rate or wins, plus a two-player comparison.  
+**How it works:** Aggregates the visible records per player and sorts them by the metric you choose.  
+**Why use it:** Compare players fairly using the same dataset and see where each player stands.
+
+---
+**03 · Hardware Lab**  
+**What:** FPS distributions, CPU/GPU utilisation, GPU temperature and related hardware records.  
+**How it works:** Visualises hardware metrics already present in the CSV; it does not read sensors from your computer.  
+**Why use it:** Explore performance variation and possible relationships between frame rate and recorded hardware metrics.
+
+---
+**04 · Intel & Correlations**  
+**What:** A correlation heatmap and metric relationships, including associations with FPS.  
+**How it works:** Calculates Pearson correlations for numeric columns in the filtered data.  
+**Why use it:** Discover variables that move together. Correlation is descriptive and does not prove cause and effect.
+
+---
+**05 · Data Explorer**  
+**What:** Searchable rows, dataset size, missing-cell counts, column types, validation checks and CSV exports.  
+**How it works:** Searches the current filtered records and lets you download the visible data or a missing-value report.  
+**Why use it:** Verify what the dashboard is analysing and inspect or export the underlying records.
+
+---
+**Shared controls**  
+**Theme collection / theme:** Change the visual identity. **Palette only** changes colours; **Full experience** also changes font pairing and interface styling.  
+**Data intake:** Upload another CSV. **Filters:** Narrow all relevant analysis by game, mode and player.
+        """)
     page = st.radio(
         "COMMAND MENU",
         ["Command Center", "Player Rankings", "Hardware Lab", "Intel & Correlations", "Data Explorer"],
-        label_visibility="visible",
+        label_visibility="collapsed",
     )
     st.divider()
     st.markdown("#### DATA INTAKE")
     uploaded = st.file_uploader("Drop a CSV dataset", type=["csv"], help="Use a CSV with columns such as Player, FPS_Avg, Score, CPU_Usage and GPU_Usage.")
     st.caption("Default source: project data folder")
-    st.markdown(f"<div class='side-status'><span class='status-dot'></span> SYSTEM READY <span class='side-version'>BUILD 05.0</span></div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='side-status'><span class='status-dot'></span> SYSTEM READY <span class='side-version'>BUILD 06.0</span></div>", unsafe_allow_html=True)
 
 st.markdown(f"""
 <style>
@@ -127,13 +167,13 @@ html, body, [class*="css"] {{ font-family:var(--font-body); }}
 .block-container {{ max-width:1500px; padding-top:1.5rem; padding-bottom:3rem; }}
 h1,h2,h3,h4 {{ font-family:var(--font-display); letter-spacing:var(--tracking); color:var(--text); }}
 p, label, .stCaption {{ color:var(--muted); }}
-[data-testid="stMetric"] {{ background:linear-gradient(145deg, {T['panel']}, {T['bg']}); border:1px solid var(--line); padding:17px 18px; border-radius:var(--radius); min-height:118px; box-shadow:var(--card-shadow); transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease; }}
-[data-testid="stMetric"]:hover {{ transform:translateY(-2px); border-color:color-mix(in srgb,var(--accent) 48%,var(--line)); }}
+[data-testid="stMetric"] {{ background:linear-gradient(145deg, {T['panel']}, {T['bg']}); border:1px solid var(--line); padding:17px 18px; border-radius:var(--radius); min-height:118px; box-shadow:var(--card-shadow); transition:transform .24s cubic-bezier(.2,.7,.2,1),border-color .24s ease,box-shadow .24s ease; }}
+[data-testid="stMetric"]:hover {{ transform:translateY(-2px) scale(1.003); border-color:color-mix(in srgb,var(--accent) 42%,var(--line)); box-shadow:0 10px 28px rgba(0,0,0,.13); }}
 [data-testid="stMetricLabel"] {{ color:var(--muted); font-size:.78rem; letter-spacing:.07em; text-transform:uppercase; }}
 [data-testid="stMetricValue"] {{ color:var(--text); font-family:var(--font-display); font-size:1.75rem; font-weight:700; letter-spacing:var(--tracking); }}
 [data-testid="stMetricDelta"] {{ font-size:.76rem; }}
-[data-testid="stPlotlyChart"] {{ border:1px solid var(--line); border-radius:var(--radius); padding:7px; background:color-mix(in srgb,var(--panel) 68%,transparent); box-shadow:var(--card-shadow); transition:border-color .2s ease; }}
-[data-testid="stPlotlyChart"]:hover {{ border-color:color-mix(in srgb,var(--accent) 35%,var(--line)); }}
+[data-testid="stPlotlyChart"] {{ border:1px solid var(--line); border-radius:var(--radius); padding:7px; background:color-mix(in srgb,var(--panel) 68%,transparent); box-shadow:var(--card-shadow); transition:border-color .24s ease,transform .24s cubic-bezier(.2,.7,.2,1),box-shadow .24s ease; }}
+[data-testid="stPlotlyChart"]:hover {{ border-color:color-mix(in srgb,var(--accent) 34%,var(--line)); transform:translateY(-1px); box-shadow:0 10px 28px rgba(0,0,0,.10); }}
 [data-testid="stDataFrame"] {{ border:1px solid var(--line); border-radius:12px; overflow:hidden; }}
 .stButton>button, .stDownloadButton>button {{ border-radius:var(--radius); border:1px solid color-mix(in srgb,var(--accent) 70%,var(--line)); background:color-mix(in srgb, var(--accent) 22%, var(--panel)); color:var(--text); font-family:var(--font-body); font-weight:650; transition:transform .2s ease,background .2s ease,border-color .2s ease; }}
 .stButton>button:hover, .stDownloadButton>button:hover {{ transform:translateY(-1px); border-color:var(--accent2); background:color-mix(in srgb,var(--accent) 30%,var(--panel)); color:var(--text); }}
@@ -163,10 +203,17 @@ hr {{ border-color:var(--line); }}
 .panel-value {{ color:var(--text); font-size:1.45rem; font-weight:650; letter-spacing:-.025em; margin-top:8px; overflow-wrap:anywhere; }}
 .panel-note {{ color:var(--accent); font-size:.77rem; margin-top:5px; }}
 div[data-testid="stRadio"] label p {{ font-weight:500; }}
-@keyframes gs-enter {{ from {{ opacity:0; transform:translateY(5px); }} to {{ opacity:1; transform:translateY(0); }} }}
-.hero {{ animation:gs-enter .48s ease-out both; }}
-[data-testid="stMetric"], [data-testid="stPlotlyChart"], .panel {{ animation:gs-enter .38s ease-out both; }}
-@media (prefers-reduced-motion: reduce) {{ *, *::before, *::after {{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }} }}
+/* Quiet, accessible navigation feedback: a soft tint and tiny shift, never a loud glow. */
+[data-testid="stRadio"] label {{ border-radius:9px; padding:5px 8px; margin:1px 0; transition:background-color .20s ease,border-color .20s ease,transform .20s ease; border:1px solid transparent; }}
+[data-testid="stRadio"] label:hover {{ background:color-mix(in srgb,var(--accent) 8%,transparent); border-color:color-mix(in srgb,var(--accent) 22%,transparent); transform:translateX(2px); }}
+[data-testid="stRadio"] label:has(input:checked) {{ background:color-mix(in srgb,var(--accent) 11%,transparent); border-color:color-mix(in srgb,var(--accent) 30%,var(--line)); }}
+[data-testid="stPopover"] button {{ min-height:2rem; min-width:2rem; border-radius:999px; border:1px solid var(--line); background:color-mix(in srgb,var(--panel) 88%,transparent); color:var(--text); transition:background-color .2s ease,border-color .2s ease,transform .2s ease; }}
+[data-testid="stPopover"] button:hover {{ border-color:var(--accent); background:color-mix(in srgb,var(--accent) 12%,var(--panel)); transform:translateY(-1px); }}
+[data-testid="stExpander"] {{ border-color:var(--line); border-radius:var(--radius); }}
+@keyframes gs-enter {{ 0% {{ opacity:0; transform:translateY(4px) scale(.997); }} 100% {{ opacity:1; transform:translateY(0) scale(1); }} }}
+.hero {{ animation:gs-enter .38s cubic-bezier(.2,.7,.2,1) both; }}
+[data-testid="stMetric"], [data-testid="stPlotlyChart"], .panel {{ animation:gs-enter .28s cubic-bezier(.2,.7,.2,1) both; }}
+@media (prefers-reduced-motion: reduce) {{ *, *::before, *::after {{ animation:none !important; transition:none !important; scroll-behavior:auto !important; transform:none !important; }} }}
 footer {{ visibility:hidden; }}
 #MainMenu {{ visibility:hidden; }}
 </style>
