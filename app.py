@@ -6,107 +6,197 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
-# -------------------- Page setup --------------------
+ROOT = Path(__file__).parent
+DATA_DIR = ROOT / "data"
+
 st.set_page_config(
-    page_title="GameStats | Performance Lab",
+    page_title="GAMESTATS // Performance Intelligence",
     page_icon="🎮",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-ROOT = Path(__file__).parent
-DATA_DIR = ROOT / "data"
+THEME_GROUPS = {
+    "GAME WORLDS": [
+        ("Los Santos / GTA V", "#D7A46B", "#9B8BC4", "#6EBAB1", "#101014", "#19191F", "#37313A", "#B5ADB8", "#E7E1E8", "LOS SANTOS", "AFTER HOURS • PERFORMANCE DIVISION", "OWN THE NIGHT. READ THE NUMBERS."),
+        ("Protocol / VALORANT", "#D95765", "#D88A91", "#8FC7C0", "#101216", "#191D23", "#353A43", "#AEB6C0", "#E7E9ED", "PROTOCOL", "TACTICAL ANALYTICS • COMPETITIVE DIVISION", "STAY SHARP. PLAY WITH INTENT."),
+        ("Counter-Strike 2", "#D6A15B", "#79A9D5", "#C3C8CE", "#101216", "#1A1D22", "#373C43", "#AEB4BC", "#E6E8EA", "COUNTER-STRIKE", "TACTICAL OPS • ROUND-BY-ROUND INTELLIGENCE", "CLEAR ANGLES. CLEAN EXECUTION."),
+        ("Night City / Cyberpunk", "#D7C95D", "#C47BAE", "#6CBCC4", "#111018", "#1C1924", "#3C3548", "#B7B0C3", "#EAE6EF", "NIGHT CITY", "EDGERUNNER SYSTEMS • NEON PERFORMANCE", "NO RULES. JUST RAW PERFORMANCE."),
+        ("The Outlands / Apex", "#D8755D", "#D5A16C", "#78B8AE", "#131112", "#20191B", "#443438", "#BBAEAE", "#EEE5E3", "THE OUTLANDS", "LEGEND PERFORMANCE • DROP ZONE INTELLIGENCE", "DROP IN. ADAPT FAST. FINISH STRONG."),
+        ("Overworld / Minecraft", "#85B86A", "#77A9C9", "#C5A77D", "#101510", "#1A211B", "#354438", "#AEBBAF", "#E4EAE3", "THE OVERWORLD", "SURVIVAL MODE • BUILD YOUR ADVANTAGE", "MINE THE DATA. BUILD YOUR EDGE."),
+        ("The Lands Between / Elden Ring", "#B99A63", "#8B9C85", "#C5B9A0", "#12120F", "#1D1C17", "#3D392E", "#B5B0A3", "#E7E2D7", "THE LANDS BETWEEN", "ANCIENT SYSTEMS • PRECISION & PATIENCE", "ENDURE THE GRIND. MASTER THE BUILD."),
+        ("Red Dead / Frontier", "#B97955", "#C5A47B", "#81958B", "#151210", "#211B17", "#46382E", "#B9ADA2", "#E8DFD5", "THE FRONTIER", "FRONTIER INTELLIGENCE • EST. 1899", "TAKE THE LONG ROAD. KNOW YOUR NUMBERS."),
+    ],
+    "NEON & SCI-FI": [
+        ("Neon Noir", "#B69BD4", "#79A9D0", "#7FC4B8", "#101018", "#1A1A25", "#383747", "#B1B0C1", "#E7E5EF", "NEON NOIR", "NIGHT SHIFT • DIGITAL INTELLIGENCE", "FIND SIGNAL IN THE NOISE."),
+        ("Synthwave Dusk", "#C18DBB", "#D4A078", "#7AAFC0", "#15121B", "#211B29", "#44384B", "#B8AEBF", "#E9E2EB", "SYNTHWAVE", "AFTER DARK • ANALOG FUTURE", "CHASE THE HORIZON."),
+        ("Arctic Cyber", "#8EBCCB", "#A5A9D2", "#7CBDB0", "#0F151A", "#182128", "#34434D", "#AABAC4", "#E3EBEF", "ARCTIC CYBER", "COLD SYSTEMS • CLEAR SIGNAL", "COOL HEAD. CLEAN DATA."),
+        ("Plasma Core", "#C88DA4", "#8FA7D1", "#83BDB3", "#131217", "#1E1C25", "#3D3546", "#B6AFBF", "#E9E5ED", "PLASMA CORE", "ENERGY SYSTEMS • CORE MONITORING", "CONTROL THE OUTPUT."),
+        ("Deep Space", "#9AA8D5", "#7EB8C2", "#C2A7C8", "#0D121A", "#161D28", "#303D4D", "#A8B4C5", "#E2E8F1", "DEEP SPACE", "ORBITAL SYSTEMS • LONG-RANGE INTEL", "EXPLORE THE UNKNOWN."),
+        ("Holographic", "#9CBDBA", "#B4A3D0", "#D0B5A0", "#101518", "#1A2226", "#354247", "#AEBABD", "#E5EAEB", "HOLOGRAPHIC", "SPECTRAL UI • MULTI-LAYER ANALYTICS", "SEE EVERY ANGLE."),
+        ("Circuit Garden", "#8DB69A", "#88AFC4", "#C2B48A", "#101613", "#1A211D", "#34453B", "#AEBBB2", "#E3EAE5", "CIRCUIT GARDEN", "BIO-DIGITAL SYSTEMS • GREEN SIGNAL", "GROW YOUR ADVANTAGE."),
+        ("Quantum Blue", "#83AFCB", "#9B9DCE", "#8FC2B7", "#0F141A", "#18212A", "#33434F", "#A9B8C5", "#E2E9EF", "QUANTUM BLUE", "QUANTUM SYSTEMS • PRECISION COMPUTING", "THINK BEYOND THE FRAME."),
+    ],
+    "EARTH & LUXE": [
+        ("Moss & Stone", "#9DAF86", "#BBA98B", "#7FA69A", "#121511", "#1C211B", "#3B4337", "#B1B8AA", "#E4E8DF", "MOSS & STONE", "FIELD NOTES • QUIET PERFORMANCE", "GROUNDED. FOCUSED. READY."),
+        ("Sandstone", "#C3A27E", "#A9B6A0", "#C28C78", "#171512", "#24201B", "#494035", "#BDB2A4", "#E9E1D7", "SANDSTONE", "DESERT STUDIO • WARM MINIMALISM", "MAKE EVERY MOVE COUNT."),
+        ("Forest Retreat", "#88A88A", "#B9A982", "#7CA6A0", "#101612", "#1A211B", "#34453A", "#ACB9AF", "#E0E8E1", "FOREST RETREAT", "CANOPY SYSTEMS • CALM BY DESIGN", "BREATHE. ANALYZE. IMPROVE."),
+        ("Terracotta Studio", "#C18770", "#D0B08A", "#8EAAA0", "#171311", "#241D19", "#493830", "#BBAEA4", "#E8DFD8", "TERRACOTTA", "CLAY STUDIO • HUMAN-CENTRED ANALYTICS", "CRAFT YOUR EDGE."),
+        ("Olive & Brass", "#A7A77A", "#C0A16D", "#89A69A", "#151610", "#22231A", "#454536", "#B9B9A8", "#E7E6DA", "OLIVE & BRASS", "PRIVATE COLLECTION • REFINED PERFORMANCE", "SUBTLE BY DESIGN. STRONG BY NATURE."),
+        ("Midnight Walnut", "#B38A6C", "#9EAAA5", "#C1B08A", "#151210", "#221B17", "#45372D", "#B7AAA0", "#E6DDD5", "MIDNIGHT WALNUT", "DARK WOOD • WARM PRECISION", "LET THE DETAILS SPEAK."),
+        ("Desert Dusk", "#C39782", "#B2A2B9", "#9BAF9C", "#171416", "#231E21", "#45373E", "#BBAFB7", "#E8E0E5", "DESERT DUSK", "DUSK COLLECTION • SOFT CONTRAST", "A QUIETER KIND OF POWER."),
+        ("Slate & Sage", "#91AAA0", "#B0A995", "#7FA3B1", "#111615", "#1B2220", "#35423D", "#ACB8B3", "#E1E8E4", "SLATE & SAGE", "MODERN HERITAGE • BALANCED SYSTEMS", "STAY STEADY. PLAY SMART."),
+    ],
+    "STUDIO & MINIMAL": [
+        ("Obsidian", "#A6B2C4", "#8FA7B7", "#B7A6C8", "#101216", "#191D23", "#343A43", "#AEB6C0", "#E5E8EC", "OBSIDIAN", "MONOCHROME SYSTEMS • CLEAN SIGNAL", "LESS NOISE. MORE INSIGHT."),
+        ("Graphite", "#A8B0B9", "#8CA7B5", "#C2B8A8", "#121416", "#1C2023", "#383E43", "#B1B7BC", "#E5E7E9", "GRAPHITE", "PRECISION STUDIO • PERFORMANCE DESIGN", "BUILT AROUND THE ESSENTIALS."),
+        ("Ivory & Ink", "#C5BBA8", "#98A9B8", "#B5A2B8", "#171715", "#24231F", "#47443D", "#C0BDB4", "#EBE8E0", "IVORY & INK", "EDITORIAL SYSTEMS • QUIET LUXURY", "CLARITY IS A COMPETITIVE EDGE."),
+        ("Midnight Blue", "#7FA8C7", "#9AA9C9", "#8ABBB8", "#0F141B", "#18212B", "#334251", "#A9B8C5", "#E2E9F0", "MIDNIGHT BLUE", "BLUE HOUR • FOCUSED PERFORMANCE", "STAY CALM UNDER LOAD."),
+        ("Burgundy Velvet", "#B98291", "#C1A17E", "#8CA9A1", "#171215", "#241B20", "#47363F", "#BDAEB5", "#E9E0E4", "BURGUNDY VELVET", "ATELIER SERIES • ELEVATED DARK MODE", "QUIET CONFIDENCE. CLEAR RESULTS."),
+        ("Espresso", "#B89478", "#A9B2A2", "#C0A0A0", "#151311", "#221D19", "#453A31", "#B8ADA4", "#E6DED6", "ESPRESSO", "COFFEEHOUSE EDITION • WARM FOCUS", "TAKE YOUR TIME. FIND THE PATTERN."),
+        ("Moonstone", "#A5B9C2", "#B6A9C9", "#C1BCA8", "#111619", "#1C2428", "#36454A", "#B1BEC2", "#E3EAEC", "MOONSTONE", "LUNAR STUDIO • SOFT-LIGHT INTERFACE", "A CLEARER VIEW OF PERFORMANCE."),
+        ("Coastal Mist", "#8FB7B5", "#A4B6C8", "#C4B49A", "#101617", "#1A2223", "#354445", "#AEBBBA", "#E2E9E8", "COASTAL MIST", "COASTAL STUDIO • OPEN AND UNCLUTTERED", "KEEP THE SIGNAL CLEAR."),
+    ],
+}
 
-# -------------------- Premium dark styling --------------------
-st.markdown("""
+
+def build_theme(group, item):
+    name, accent, accent2, accent3, bg, panel, line, muted, text_color, short_name, tag, hero_line = item
+    return {
+        "group": group, "accent": accent, "accent2": accent2, "accent3": accent3,
+        "bg": bg, "panel": panel, "line": line, "muted": muted, "text": text_color,
+        "name": short_name, "tag": tag,
+        "gradient": f"linear-gradient(120deg, {accent}22, {accent2}16 52%, {accent3}0D)",
+        "plot_colors": [accent, accent2, accent3, "#C58F8F"], "hero_line": hero_line,
+    }
+
+THEMES = {item[0]: build_theme(group, item) for group, items in THEME_GROUPS.items() for item in items}
+
+with st.sidebar:
+    st.markdown("<div class='side-brand'>GS<span>//</span></div>", unsafe_allow_html=True)
+    st.markdown("### GAMESTATS")
+    st.caption("Performance Intelligence")
+    theme_group = st.selectbox("THEME COLLECTION", list(THEME_GROUPS.keys()), index=0, help="Browse curated visual collections.")
+    group_theme_names = [item[0] for item in THEME_GROUPS[theme_group]]
+    theme_name = st.selectbox("✦ CHOOSE YOUR THEME", group_theme_names, index=0, help="Switch the complete dashboard palette and chart colours.")
+    T = THEMES[theme_name]
+    st.caption(f"{len(THEMES)} curated themes · {theme_group.title()}")
+    st.divider()
+    page = st.radio(
+        "COMMAND MENU",
+        ["Command Center", "Player Rankings", "Hardware Lab", "Intel & Correlations", "Data Explorer"],
+        label_visibility="visible",
+    )
+    st.divider()
+    st.markdown("#### DATA INTAKE")
+    uploaded = st.file_uploader("Drop a CSV dataset", type=["csv"], help="Use a CSV with columns such as Player, FPS_Avg, Score, CPU_Usage and GPU_Usage.")
+    st.caption("Default source: project data folder")
+    st.markdown(f"<div class='side-status'><span class='status-dot'></span> SYSTEM READY <span class='side-version'>BUILD 04.0</span></div>", unsafe_allow_html=True)
+
+st.markdown(f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap');
-
-:root { --bg:#080b10; --panel:#10151d; --line:#222b37; --muted:#8995a7; --text:#edf3fa; --lime:#c8ff4d; --cyan:#50e3e0; }
-html, body, [class*="css"] { font-family:'Space Grotesk', sans-serif; }
-.stApp { background: radial-gradient(ellipse at 75% -10%, rgba(77,111,50,.15), transparent 35%), #080b10; color:var(--text); }
-[data-testid="stHeader"] { background:rgba(8,11,16,.88); }
-[data-testid="stSidebar"] { background:#0b0f15; border-right:1px solid #202733; }
-[data-testid="stSidebar"] * { color:#dce5ef; }
-.block-container { padding-top:1.65rem; padding-bottom:3rem; max-width:1500px; }
-h1,h2,h3 { letter-spacing:-.04em; }
-h1 { font-weight:700; }
-p, label, .stCaption { color:#a7b2c2; }
-div[data-testid="stMetric"] { background:linear-gradient(145deg,#131a23,#0d1219); border:1px solid #26313e; padding:18px 18px 14px; border-radius:16px; min-height:130px; }
-div[data-testid="stMetricLabel"] { color:#9aa8b9; font-size:.82rem; }
-div[data-testid="stMetricValue"] { color:#f1f6fc; font-size:1.9rem; font-weight:700; }
-div[data-testid="stMetricDelta"] { font-size:.75rem; }
-div[data-testid="stPlotlyChart"] { background:#0d1219; border:1px solid #202a36; border-radius:16px; padding:8px; }
-div[data-testid="stDataFrame"] { border:1px solid #222b37; border-radius:12px; overflow:hidden; }
-.stButton > button, .stDownloadButton > button { border-radius:10px; border:1px solid #b9f544; background:#c8ff4d; color:#10150a; font-weight:700; }
-.stButton > button:hover, .stDownloadButton > button:hover { background:#d8ff83; border-color:#d8ff83; color:#10150a; }
-div[data-testid="stFileUploader"] { border:1px dashed #354454; border-radius:14px; background:#0d1219; padding:8px; }
-hr { border-color:#222b37; }
-.gs-eyebrow { color:#c8ff4d; text-transform:uppercase; letter-spacing:.19em; font-size:.72rem; font-weight:700; }
-.gs-hero { padding:24px 26px; border:1px solid #283443; border-radius:20px; background:linear-gradient(115deg,rgba(200,255,77,.09),rgba(80,227,224,.035) 55%,rgba(17,24,34,.7)); margin-bottom:20px; }
-.gs-hero-title { font-size:2.4rem; font-weight:700; letter-spacing:-.065em; line-height:1.05; color:#f1f6fc; }
-.gs-hero-sub { color:#9ba9ba; margin-top:10px; font-size:.95rem; }
-.gs-chip { display:inline-block; padding:5px 9px; border:1px solid #33414f; border-radius:999px; color:#c8ff4d; font-size:.72rem; margin-right:5px; background:#111922; }
-.gs-section { margin-top:16px; margin-bottom:8px; }
-.gs-section-title { color:#f0f5fa; font-weight:700; font-size:1.25rem; letter-spacing:-.035em; }
-.gs-section-note { color:#7f8da0; font-size:.83rem; margin-top:3px; }
-.gs-card { border:1px solid #26313e; background:linear-gradient(145deg,#121922,#0c1118); border-radius:16px; padding:16px 18px; }
-.gs-card-label { color:#8796a9; font-size:.78rem; text-transform:uppercase; letter-spacing:.09em; }
-.gs-card-value { color:#eaf1f8; font-size:1.55rem; font-weight:700; margin-top:7px; }
-.gs-card-note { color:#c8ff4d; font-size:.78rem; margin-top:5px; }
-footer { visibility:hidden; }
+:root {{
+ --bg:{T['bg']}; --panel:{T['panel']}; --line:{T['line']}; --muted:{T['muted']};
+ --text:{T['text']}; --accent:{T['accent']}; --accent2:{T['accent2']}; --accent3:{T['accent3']};
+}}
+html, body, [class*="css"] {{ font-family:'Space Grotesk',sans-serif; }}
+.stApp {{ background:radial-gradient(ellipse at 80% -10%, {T['accent']}13, transparent 34%), var(--bg); color:var(--text); }}
+[data-testid="stHeader"] {{ background:rgba(8,11,16,.78); }}
+[data-testid="stSidebar"] {{ background:#090C12; border-right:1px solid var(--line); }}
+[data-testid="stSidebar"] * {{ color:#D4D9E1; }}
+.block-container {{ max-width:1500px; padding-top:1.5rem; padding-bottom:3rem; }}
+h1,h2,h3,h4 {{ letter-spacing:-.045em; color:var(--text); }}
+p, label, .stCaption {{ color:var(--muted); }}
+[data-testid="stMetric"] {{ background:linear-gradient(145deg, {T['panel']}, #0D1118); border:1px solid var(--line); padding:17px 18px; border-radius:16px; min-height:118px; }}
+[data-testid="stMetricLabel"] {{ color:var(--muted); font-size:.78rem; letter-spacing:.07em; text-transform:uppercase; }}
+[data-testid="stMetricValue"] {{ color:var(--text); font-size:1.75rem; font-weight:650; letter-spacing:-.035em; }}
+[data-testid="stMetricDelta"] {{ font-size:.76rem; }}
+[data-testid="stPlotlyChart"] {{ border:1px solid var(--line); border-radius:16px; padding:7px; background:rgba(12,16,23,.6); }}
+[data-testid="stDataFrame"] {{ border:1px solid var(--line); border-radius:12px; overflow:hidden; }}
+.stButton>button, .stDownloadButton>button {{ border-radius:10px; border:1px solid var(--accent); background:color-mix(in srgb, var(--accent) 82%, #242832); color:#101319; font-weight:650; transition:all .2s ease; }}
+.stButton>button:hover, .stDownloadButton>button:hover {{ filter:brightness(1.04); border-color:var(--accent2); color:#101319; }}
+[data-testid="stFileUploader"] {{ border:1px dashed var(--line); border-radius:14px; background:#0D1219; padding:8px; }}
+hr {{ border-color:var(--line); }}
+.side-brand {{ font-size:2.2rem; font-weight:700; letter-spacing:-.1em; color:var(--text); }}
+.side-brand span {{ color:var(--accent); }}
+.side-status {{ border:1px solid var(--line); background:#10151D; border-radius:9px; padding:9px 10px; color:var(--muted); font-size:.69rem; letter-spacing:.08em; }}
+.status-dot {{ display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--accent3); margin-right:7px; box-shadow:0 0 5px color-mix(in srgb, var(--accent3) 55%, transparent); }}
+.side-version {{ float:right; opacity:.65; }}
+[data-testid="stSelectbox"] label p {{ font-size:.72rem; letter-spacing:.09em; text-transform:uppercase; font-weight:650; }}
+[data-testid="stSelectbox"] [data-baseweb="select"] > div {{ border-color:var(--line); border-radius:10px; background:#12171E; }}
+.stMarkdown, .stText, .stCaption {{ line-height:1.55; }}
+::selection {{ background:var(--accent); color:#101319; }}
+.eyebrow {{ font-family:'DM Mono',monospace; color:var(--accent); font-size:.70rem; letter-spacing:.15em; text-transform:uppercase; }}
+.hero {{ position:relative; overflow:hidden; border:1px solid var(--line); border-radius:22px; padding:28px 30px; background:{T['gradient']}; margin-bottom:18px; }}
+.hero:after {{ content:'GS'; position:absolute; right:25px; top:-38px; font-size:12rem; font-weight:700; letter-spacing:-.13em; color:rgba(255,255,255,.025); pointer-events:none; }}
+.hero-title {{ font-size:clamp(2rem,3.8vw,3.35rem); line-height:1.04; font-weight:700; letter-spacing:-.065em; color:var(--text); max-width:800px; text-wrap:balance; }}
+.hero-title span {{ color:var(--accent); }}
+.hero-sub {{ color:var(--muted); margin-top:12px; font-size:.94rem; line-height:1.65; max-width:650px; }}
+.chip {{ display:inline-block; padding:6px 10px; border:1px solid var(--line); border-radius:999px; color:var(--text); background:rgba(9,12,18,.42); font-family:'DM Mono',monospace; font-size:.67rem; letter-spacing:.04em; margin:15px 6px 0 0; }}
+.section-head {{ display:flex; align-items:end; justify-content:space-between; gap:12px; margin:20px 0 10px; }}
+.section-title {{ color:var(--text); font-size:1.22rem; font-weight:700; letter-spacing:-.04em; }}
+.section-note {{ color:var(--muted); font-size:.8rem; margin-top:3px; }}
+.panel {{ border:1px solid var(--line); background:linear-gradient(145deg, {T['panel']}, #0D1118); border-radius:16px; padding:17px 18px; }}
+.panel-label {{ color:var(--muted); font-family:'DM Mono',monospace; text-transform:uppercase; letter-spacing:.1em; font-size:.68rem; }}
+.panel-value {{ color:var(--text); font-size:1.45rem; font-weight:650; letter-spacing:-.025em; margin-top:8px; overflow-wrap:anywhere; }}
+.panel-note {{ color:var(--accent); font-size:.77rem; margin-top:5px; }}
+div[data-testid="stRadio"] label p {{ font-weight:500; }}
+footer {{ visibility:hidden; }}
+#MainMenu {{ visibility:hidden; }}
 </style>
 """, unsafe_allow_html=True)
 
-PLOT_LAYOUT = dict(
-    paper_bgcolor="rgba(0,0,0,0)",
-    plot_bgcolor="rgba(0,0,0,0)",
-    font=dict(family="Space Grotesk, sans-serif", color="#b9c4d2"),
-    margin=dict(l=20, r=20, t=45, b=20),
-    legend=dict(bgcolor="rgba(0,0,0,0)"),
-    xaxis=dict(gridcolor="#202a36", zerolinecolor="#202a36"),
-    yaxis=dict(gridcolor="#202a36", zerolinecolor="#202a36"),
-)
+def locate_default_csv():
+    candidates = [
+        DATA_DIR / "gta5_cleaned_data.csv",
+        DATA_DIR / "game_stats.csv",
+        ROOT / "gta5_cleaned_data.csv",
+        ROOT / "game_stats.csv",
+    ]
+    for path in candidates:
+        if path.exists():
+            return path
+    # Case-insensitive fallback, including files accidentally left at the repository root.
+    for folder in (DATA_DIR, ROOT):
+        if folder.exists():
+            for path in folder.glob("*.csv"):
+                name = path.name.lower()
+                if "cleaned" in name and "data" in name:
+                    return path
+            for path in folder.glob("*.csv"):
+                if "game_stats" in path.name.lower():
+                    return path
+    return None
 
-def polish(fig, height=330):
-    fig.update_layout(**PLOT_LAYOUT, height=height)
-    fig.update_xaxes(showline=False, ticks="outside")
-    fig.update_yaxes(showline=False, ticks="outside")
-    return fig
-
-@st.cache_data
+@st.cache_data(show_spinner=False)
 def read_csv_bytes(file_bytes):
     return pd.read_csv(io.BytesIO(file_bytes))
 
-def load_default_data():
-    cleaned = DATA_DIR / "gta5_cleaned_data.csv"
-    raw = DATA_DIR / "game_stats.csv"
-    path = cleaned if cleaned.exists() else raw
-    if not path.exists():
-        return pd.DataFrame()
-    return pd.read_csv(path)
+@st.cache_data(show_spinner=False)
+def read_csv_path(path_string, modified_time):
+    return pd.read_csv(path_string)
 
-def prepare_data(df):
-    df = df.copy()
+def prepare_data(frame):
+    df = frame.copy()
     df.columns = [str(c).strip() for c in df.columns]
-    for c in ["Player", "Game", "Game_Mode"]:
-        if c in df.columns:
-            df[c] = df[c].astype("string").str.strip()
+    for col in ["Player", "Game", "Game_Mode", "FPS_Category"]:
+        if col in df.columns:
+            df[col] = df[col].astype("string").str.strip()
     numeric = [
         "Kills", "Deaths", "Assists", "Wins", "Matches", "Playtime_Hours",
         "FPS_Avg", "FPS_Min", "CPU_Usage", "GPU_Usage", "RAM_Usage_GB",
-        "GPU_Temp", "Score", "KDA", "Win_Rate"
+        "GPU_Temp", "Score", "KDA", "Win_Rate",
     ]
-    for c in numeric:
-        if c in df.columns:
-            df[c] = pd.to_numeric(df[c], errors="coerce")
+    for col in numeric:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
     if {"Kills", "Deaths", "Assists"}.issubset(df.columns):
+        calculated = (df["Kills"] + df["Assists"]) / df["Deaths"].replace(0, np.nan)
         if "KDA" not in df.columns:
-            df["KDA"] = (df["Kills"] + df["Assists"]) / df["Deaths"].replace(0, np.nan)
+            df["KDA"] = calculated
         else:
-            df["KDA"] = df["KDA"].fillna(
-                (df["Kills"] + df["Assists"]) / df["Deaths"].replace(0, np.nan)
-            )
+            df["KDA"] = df["KDA"].fillna(calculated)
     if {"Wins", "Matches"}.issubset(df.columns):
         calculated = df["Wins"] / df["Matches"].replace(0, np.nan) * 100
         if "Win_Rate" not in df.columns:
@@ -115,280 +205,259 @@ def prepare_data(df):
             df["Win_Rate"] = df["Win_Rate"].fillna(calculated)
     return df
 
-def fmt_num(value, digits=1):
+def fmt(value, digits=1):
     try:
-        if pd.isna(value):
-            return "—"
-        return f"{value:,.{digits}f}"
+        return "—" if pd.isna(value) else f"{value:,.{digits}f}"
     except (TypeError, ValueError):
         return "—"
 
-# -------------------- Sidebar --------------------
-with st.sidebar:
-    st.markdown('<div class="gs-eyebrow">GAMESTATS / LAB 01</div>', unsafe_allow_html=True)
-    st.markdown("## 🎮 GameStats")
-    st.caption("Gaming performance intelligence")
-    st.divider()
-    page = st.radio(
-        "NAVIGATION",
-        ["Overview", "Player leaderboard", "Hardware lab", "Insights", "Data explorer"],
-        label_visibility="visible",
-    )
-    st.divider()
-    st.markdown("### DATA SOURCE")
-    uploaded = st.file_uploader(
-        "Upload a CSV dataset",
-        type=["csv"],
-        help="Your file should contain columns such as Player, Game, FPS_Avg, Score, CPU_Usage and GPU_Usage.",
-    )
-    st.caption("Default dataset: GTA 5 • 300 recorded sample sessions")
-    st.divider()
-    st.markdown('<span class="gs-chip">PYTHON</span><span class="gs-chip">PANDAS</span><span class="gs-chip">PLOTLY</span>', unsafe_allow_html=True)
-    st.caption("GameStats · Performance Lab")
+def section(title, note=""):
+    st.markdown(f"<div class='section-head'><div><div class='section-title'>{title}</div><div class='section-note'>{note}</div></div></div>", unsafe_allow_html=True)
 
-# -------------------- Data --------------------
+PLOT_LAYOUT = dict(
+    paper_bgcolor="rgba(0,0,0,0)",
+    plot_bgcolor="rgba(0,0,0,0)",
+    font=dict(family="Space Grotesk, sans-serif", color=T["muted"]),
+    margin=dict(l=20, r=20, t=38, b=18),
+    legend=dict(bgcolor="rgba(0,0,0,0)"),
+    xaxis=dict(gridcolor=T["line"], zerolinecolor=T["line"]),
+    yaxis=dict(gridcolor=T["line"], zerolinecolor=T["line"]),
+)
+def polish(fig, height=330):
+    fig.update_layout(**PLOT_LAYOUT, height=height)
+    fig.update_xaxes(showline=False, ticks="outside")
+    fig.update_yaxes(showline=False, ticks="outside")
+    return fig
+
 try:
     if uploaded is not None:
-        raw_df = read_csv_bytes(uploaded.getvalue())
-        source_label = f"Uploaded: {uploaded.name}"
+        original = read_csv_bytes(uploaded.getvalue())
+        source = f"UPLOAD / {uploaded.name}"
     else:
-        raw_df = load_default_data()
-        source_label = "Project dataset"
-    df = prepare_data(raw_df)
+        default_path = locate_default_csv()
+        if default_path is None:
+            original = pd.DataFrame()
+            source = "NO DATASET"
+        else:
+            original = read_csv_path(str(default_path), default_path.stat().st_mtime)
+            source = f"PROJECT / {default_path.name}"
+    df = prepare_data(original)
 except Exception as exc:
-    st.error(f"We couldn't read this CSV: {exc}")
+    st.error(f"Could not read this dataset: {exc}")
+    st.info("Check that the uploaded file is a valid CSV and try again.")
     st.stop()
 
-if df.empty:
-    st.warning("No dataset found. Put gta5_cleaned_data.csv in the project's data folder or upload a CSV in the sidebar.")
-    st.stop()
-
-required = ["Player", "Game_Mode", "FPS_Avg", "Score"]
-missing_required = [c for c in required if c not in df.columns]
-if missing_required:
-    st.warning("This dataset is missing some dashboard columns: " + ", ".join(missing_required) + ". Some charts may be unavailable.")
-
-# Filters
-with st.sidebar:
-    st.markdown("### FILTERS")
-    games = sorted(df["Game"].dropna().astype(str).unique().tolist()) if "Game" in df else []
-    modes = sorted(df["Game_Mode"].dropna().astype(str).unique().tolist()) if "Game_Mode" in df else []
-    selected_games = st.multiselect("Game", games, default=games)
-    selected_modes = st.multiselect("Game mode", modes, default=modes)
-    players = sorted(df["Player"].dropna().astype(str).unique().tolist()) if "Player" in df else []
-    selected_players = st.multiselect("Players", players, default=players)
-    if st.button("Reset filters", use_container_width=True):
-        st.rerun()
-
-filtered = df.copy()
-if "Game" in filtered and selected_games:
-    filtered = filtered[filtered["Game"].astype(str).isin(selected_games)]
-if "Game_Mode" in filtered and selected_modes:
-    filtered = filtered[filtered["Game_Mode"].astype(str).isin(selected_modes)]
-if "Player" in filtered and selected_players:
-    filtered = filtered[filtered["Player"].astype(str).isin(selected_players)]
-
-# -------------------- Shared header --------------------
-st.markdown('<div class="gs-eyebrow">PLAYER + HARDWARE ANALYTICS</div>', unsafe_allow_html=True)
+hero_words = T["hero_line"].rsplit(" ", 1)
 st.markdown(f"""
-<div class="gs-hero">
-  <div class="gs-hero-title">Performance, <span style="color:#c8ff4d">decoded.</span></div>
-  <div class="gs-hero-sub">One command centre for player stats, frame rates and hardware behaviour.</div>
-  <div style="margin-top:16px">
-    <span class="gs-chip">● LIVE FILTERS</span>
-    <span class="gs-chip">DATASET: {len(filtered):,} SESSIONS</span>
-    <span class="gs-chip">{source_label.upper()}</span>
-  </div>
+<div class="eyebrow">GAMESTATS / {T['name']} DIVISION</div>
+<div class="hero">
+  <div class="hero-title">{hero_words[0]} <span>{hero_words[1]}</span></div>
+  <div class="hero-sub">A unified command centre for player performance, frame rates, and hardware behaviour. Explore the numbers. Find the edge.</div>
+  <div><span class="chip">{T['tag']}</span><span class="chip">DATASET / {len(df):,} ROWS</span><span class="chip">{source}</span></div>
 </div>
 """, unsafe_allow_html=True)
 
-if filtered.empty:
-    st.warning("No rows match the current filters. Change the filters in the sidebar.")
+if df.empty:
+    st.error("No dataset found yet.")
+    st.markdown("Place **`gta5_cleaned_data.csv`** or **`game_stats.csv`** inside the project's `data` folder. The app can also load either filename from the project root, or you can upload a CSV using the sidebar.")
     st.stop()
 
-# Compute key metrics from filtered data
-avg_fps = filtered["FPS_Avg"].mean() if "FPS_Avg" in filtered else np.nan
-avg_score = filtered["Score"].mean() if "Score" in filtered else np.nan
-avg_kda = filtered["KDA"].mean() if "KDA" in filtered else np.nan
+required = ["Player", "Game_Mode", "FPS_Avg", "Score"]
+missing = [col for col in required if col not in df.columns]
+if missing:
+    st.warning("Some dashboard features may be unavailable because these columns are missing: " + ", ".join(missing))
+
+with st.sidebar:
+    st.markdown("#### FILTERS")
+    games = sorted(df["Game"].dropna().astype(str).unique()) if "Game" in df else []
+    modes = sorted(df["Game_Mode"].dropna().astype(str).unique()) if "Game_Mode" in df else []
+    players = sorted(df["Player"].dropna().astype(str).unique()) if "Player" in df else []
+    selected_games = st.multiselect("Game", games, default=games) if games else []
+    selected_modes = st.multiselect("Game mode", modes, default=modes) if modes else []
+    selected_players = st.multiselect("Player", players, default=players) if players else []
+    if st.button("↺ Reset filters", use_container_width=True):
+        st.rerun()
+
+filtered = df.copy()
+if "Game" in filtered and games:
+    filtered = filtered[filtered["Game"].astype(str).isin(selected_games)]
+if "Game_Mode" in filtered and modes:
+    filtered = filtered[filtered["Game_Mode"].astype(str).isin(selected_modes)]
+if "Player" in filtered and players:
+    filtered = filtered[filtered["Player"].astype(str).isin(selected_players)]
+
+if filtered.empty:
+    st.warning("No rows match the current filters. Reset filters or select at least one option.")
+    st.stop()
+
+fps = filtered["FPS_Avg"].mean() if "FPS_Avg" in filtered else np.nan
+kda = filtered["KDA"].mean() if "KDA" in filtered else np.nan
 win_rate = filtered["Win_Rate"].mean() if "Win_Rate" in filtered else np.nan
-avg_gpu = filtered["GPU_Usage"].mean() if "GPU_Usage" in filtered else np.nan
-avg_temp = filtered["GPU_Temp"].mean() if "GPU_Temp" in filtered else np.nan
-player_count = filtered["Player"].nunique() if "Player" in filtered else 0
-game_count = filtered["Game"].nunique() if "Game" in filtered else 0
+score = filtered["Score"].mean() if "Score" in filtered else np.nan
+gpu = filtered["GPU_Usage"].mean() if "GPU_Usage" in filtered else np.nan
+temp = filtered["GPU_Temp"].mean() if "GPU_Temp" in filtered else np.nan
+players_count = filtered["Player"].nunique() if "Player" in filtered else 0
 
-# -------------------- Overview --------------------
-if page == "Overview":
-    st.markdown('<div class="gs-section"><div class="gs-section-title">Command overview</div><div class="gs-section-note">A quick read on the selected sessions.</div></div>', unsafe_allow_html=True)
-    m1, m2, m3, m4 = st.columns(4)
-    m1.metric("AVG. FPS", fmt_num(avg_fps, 1), help="Mean average FPS across the selected rows.")
-    m2.metric("AVG. KDA", fmt_num(avg_kda, 2), help="Mean of session-level KDA values.")
-    m3.metric("WIN RATE", f"{fmt_num(win_rate, 1)}%" if not pd.isna(win_rate) else "—")
-    m4.metric("AVG. SCORE", fmt_num(avg_score, 0))
-    m5, m6, m7, m8 = st.columns(4)
-    m5.metric("SESSIONS", f"{len(filtered):,}")
-    m6.metric("PLAYERS", f"{player_count:,}")
-    m7.metric("GPU UTILIZATION", f"{fmt_num(avg_gpu, 1)}%" if not pd.isna(avg_gpu) else "—")
-    m8.metric("GPU TEMPERATURE", f"{fmt_num(avg_temp, 1)} °C" if not pd.isna(avg_temp) else "—")
+if page == "Command Center":
+    section("Command overview", "A live read on the sessions in your current selection.")
+    cols = st.columns(4)
+    cols[0].metric("AVERAGE FPS", fmt(fps), help="Average FPS across the selected sessions.")
+    cols[1].metric("AVERAGE KDA", fmt(kda, 2))
+    cols[2].metric("WIN RATE", f"{fmt(win_rate)}%" if not pd.isna(win_rate) else "—")
+    cols[3].metric("AVERAGE SCORE", fmt(score, 0))
+    cols = st.columns(4)
+    cols[0].metric("SESSIONS", f"{len(filtered):,}")
+    cols[1].metric("PLAYERS", f"{players_count:,}")
+    cols[2].metric("GPU LOAD", f"{fmt(gpu)}%" if not pd.isna(gpu) else "—")
+    cols[3].metric("GPU TEMP", f"{fmt(temp)} °C" if not pd.isna(temp) else "—")
 
-    left, right = st.columns([1.45, 1])
+    left, right = st.columns([1.25, 1])
     with left:
-        st.markdown('<div class="gs-section"><div class="gs-section-title">FPS by game mode</div><div class="gs-section-note">Average frame rate across the selected modes.</div></div>', unsafe_allow_html=True)
+        section("FPS by game mode", "Which modes are running at the highest average frame rate?")
         if {"Game_Mode", "FPS_Avg"}.issubset(filtered.columns):
-            mode_fps = filtered.groupby("Game_Mode", as_index=False)["FPS_Avg"].mean().sort_values("FPS_Avg", ascending=True)
-            fig = px.bar(mode_fps, x="FPS_Avg", y="Game_Mode", orientation="h", text_auto=".1f")
-            fig.update_traces(marker_color="#c8ff4d", textfont_color="#eaf1f8", textposition="outside", cliponaxis=False)
+            chart = filtered.groupby("Game_Mode", as_index=False)["FPS_Avg"].mean().sort_values("FPS_Avg")
+            fig = px.bar(chart, x="FPS_Avg", y="Game_Mode", orientation="h", text_auto=".1f",
+                         color="Game_Mode", color_discrete_sequence=T["plot_colors"])
+            fig.update_traces(textposition="outside", cliponaxis=False)
             fig.update_layout(xaxis_title="Average FPS", yaxis_title="", showlegend=False)
-            st.plotly_chart(polish(fig, 340), use_container_width=True)
+            st.plotly_chart(polish(fig, 350), use_container_width=True)
         else:
-            st.info("FPS_Avg and Game_Mode columns are needed for this chart.")
+            st.info("This chart needs Game_Mode and FPS_Avg columns.")
     with right:
-        st.markdown('<div class="gs-section"><div class="gs-section-title">CPU vs GPU load</div><div class="gs-section-note">Average utilization for selected sessions.</div></div>', unsafe_allow_html=True)
-        util_rows = []
-        for col, label in [("CPU_Usage", "CPU"), ("GPU_Usage", "GPU")]:
-            if col in filtered:
-                util_rows.append({"Component": label, "Usage": filtered[col].mean()})
-        if util_rows:
-            u = pd.DataFrame(util_rows)
-            fig = go.Figure(go.Bar(
-                x=u["Component"], y=u["Usage"],
-                marker_color=["#50e3e0", "#c8ff4d"],
-                text=[f"{x:.1f}%" for x in u["Usage"]], textposition="outside"
-            ))
-            fig.update_layout(yaxis_title="Usage (%)", yaxis_range=[0, 110], showlegend=False)
-            st.plotly_chart(polish(fig, 340), use_container_width=True)
+        section("CPU vs GPU load", "Average utilization in the selected sessions.")
+        util = [{"Component": label, "Usage": filtered[col].mean()} for col, label in [("CPU_Usage", "CPU"), ("GPU_Usage", "GPU")] if col in filtered]
+        if util:
+            fig = px.bar(pd.DataFrame(util), x="Component", y="Usage", text="Usage",
+                         color="Component", color_discrete_sequence=[T["accent"], T["accent3"]])
+            fig.update_traces(texttemplate="%{y:.1f}%", textposition="outside")
+            fig.update_layout(yaxis_title="Utilization (%)", yaxis_range=[0, 110], showlegend=False)
+            st.plotly_chart(polish(fig, 350), use_container_width=True)
         else:
-            st.info("CPU_Usage and GPU_Usage columns are needed for this chart.")
+            st.info("No CPU/GPU usage columns found.")
 
-    left, right = st.columns([1.15, 1])
+    left, right = st.columns([1.1, 1])
     with left:
-        st.markdown('<div class="gs-section"><div class="gs-section-title">Score vs frame rate</div><div class="gs-section-note">Explore whether high FPS appears alongside higher scores.</div></div>', unsafe_allow_html=True)
+        section("Score × frame rate", "Explore how score and FPS appear together.")
         if {"FPS_Avg", "Score"}.issubset(filtered.columns):
-            color_col = "Game_Mode" if "Game_Mode" in filtered else None
-            fig = px.scatter(filtered, x="FPS_Avg", y="Score", color=color_col, opacity=.78,
-                             color_discrete_sequence=["#c8ff4d", "#50e3e0", "#b49aff", "#ff9b70"],
-                             hover_data=[c for c in ["Player", "Game_Mode", "Kills", "Deaths"] if c in filtered])
-            fig.update_traces(marker=dict(size=8, line=dict(width=0)))
+            color = "Game_Mode" if "Game_Mode" in filtered else None
+            fig = px.scatter(filtered, x="FPS_Avg", y="Score", color=color,
+                             color_discrete_sequence=T["plot_colors"], opacity=.82,
+                             hover_data=[c for c in ["Player", "Game", "Game_Mode", "Kills", "Deaths"] if c in filtered])
+            fig.update_traces(marker=dict(size=9, line=dict(width=0)))
             fig.update_layout(xaxis_title="Average FPS", yaxis_title="Score", legend_title="")
-            st.plotly_chart(polish(fig, 330), use_container_width=True)
+            st.plotly_chart(polish(fig, 340), use_container_width=True)
         else:
-            st.info("FPS_Avg and Score columns are needed for this chart.")
+            st.info("This chart needs FPS_Avg and Score columns.")
     with right:
-        st.markdown('<div class="gs-section"><div class="gs-section-title">Top sessions</div><div class="gs-section-note">Highest-scoring rows in the current selection.</div></div>', unsafe_allow_html=True)
+        section("Top sessions", "Highest scoring sessions in this selection.")
         if "Score" in filtered:
-            top = filtered.nlargest(5, "Score")
-            show_cols = [c for c in ["Player", "Game_Mode", "Score", "FPS_Avg", "KDA"] if c in top]
-            st.dataframe(top[show_cols].reset_index(drop=True), use_container_width=True, hide_index=True)
-        st.download_button("↓  Export filtered data", filtered.to_csv(index=False).encode("utf-8"), "gamestats_filtered.csv", "text/csv", use_container_width=True)
+            top = filtered.nlargest(6, "Score")
+            cols = [c for c in ["Player", "Game_Mode", "Score", "FPS_Avg", "KDA"] if c in top]
+            st.dataframe(top[cols].reset_index(drop=True), use_container_width=True, hide_index=True)
+            st.download_button("↓ Export filtered sessions", filtered.to_csv(index=False).encode("utf-8"), "gamestats_filtered.csv")
 
-# -------------------- Player leaderboard --------------------
-elif page == "Player leaderboard":
-    st.markdown('<div class="gs-section"><div class="gs-section-title">Player rankings</div><div class="gs-section-note">Rank by total impact, score, KDA or FPS.</div></div>', unsafe_allow_html=True)
+elif page == "Player Rankings":
+    section("Player rankings", "Pick a metric and see who leads the lobby.")
     if "Player" not in filtered:
-        st.warning("The dataset needs a Player column.")
+        st.warning("This dataset needs a Player column.")
     else:
-        rank_by_options = [c for c in ["Score", "KDA", "FPS_Avg", "Kills", "Win_Rate"] if c in filtered]
-        rank_by = st.selectbox("Rank players by", rank_by_options, index=0 if "Score" in rank_by_options else 0)
-        agg = {c: "mean" for c in ["Score", "KDA", "FPS_Avg", "Win_Rate", "GPU_Usage"] if c in filtered}
-        for c in ["Kills", "Deaths", "Assists", "Wins", "Matches"]:
-            if c in filtered:
-                agg[c] = "sum"
-        if agg:
-            lb = filtered.groupby("Player", as_index=False).agg(agg)
-            lb = lb.sort_values(rank_by, ascending=False, na_position="last").reset_index(drop=True)
-            lb.insert(0, "Rank", np.arange(1, len(lb) + 1))
-            top3 = st.columns(3)
-            for i, col in enumerate(top3):
-                if i < len(lb):
-                    row = lb.iloc[i]
-                    col.markdown(f"""<div class="gs-card"><div class="gs-card-label">RANK #{i+1}</div><div class="gs-card-value">{row['Player']}</div><div class="gs-card-note">{rank_by.replace('_',' ')} · {fmt_num(row[rank_by], 2)}</div></div>""", unsafe_allow_html=True)
+        rank_options = [c for c in ["Score", "KDA", "FPS_Avg", "Kills", "Win_Rate", "Wins"] if c in filtered]
+        if rank_options:
+            rank_by = st.selectbox("RANK PLAYERS BY", rank_options, index=0)
+            agg = {c: "mean" for c in ["Score", "KDA", "FPS_Avg", "Win_Rate", "GPU_Usage"] if c in filtered}
+            for c in ["Kills", "Deaths", "Assists", "Wins", "Matches"]:
+                if c in filtered:
+                    agg[c] = "sum"
+            board = filtered.groupby("Player", as_index=False).agg(agg) if agg else filtered[["Player"]].drop_duplicates()
+            board = board.sort_values(rank_by, ascending=False, na_position="last").reset_index(drop=True)
+            board.insert(0, "Rank", np.arange(1, len(board) + 1))
+            podium = st.columns(min(3, len(board)))
+            for idx, col in enumerate(podium):
+                row = board.iloc[idx]
+                with col:
+                    st.markdown(f"<div class='panel'><div class='panel-label'>RANK / 0{idx+1}</div><div class='panel-value'>{row['Player']}</div><div class='panel-note'>{rank_by.replace('_',' ')} · {fmt(row[rank_by],2)}</div></div>", unsafe_allow_html=True)
             st.write("")
-            st.dataframe(lb.round(2), use_container_width=True, hide_index=True)
-            st.download_button("↓  Download leaderboard", lb.to_csv(index=False).encode("utf-8"), "gamestats_leaderboard.csv", "text/csv")
-            if {"Player", rank_by}.issubset(lb.columns):
-                chart_data = lb.head(12).sort_values(rank_by, ascending=True)
-                fig = px.bar(chart_data, x=rank_by, y="Player", orientation="h", text_auto=".2s")
-                fig.update_traces(marker_color="#c8ff4d", textposition="outside", cliponaxis=False)
-                fig.update_layout(xaxis_title=rank_by.replace("_", " "), yaxis_title="")
-                st.plotly_chart(polish(fig, max(330, len(chart_data)*30)), use_container_width=True)
+            st.dataframe(board.round(2), use_container_width=True, hide_index=True)
+            st.download_button("↓ Download leaderboard", board.to_csv(index=False).encode("utf-8"), "gamestats_leaderboard.csv")
+            chart_data = board.head(15).sort_values(rank_by, ascending=True)
+            fig = px.bar(chart_data, x=rank_by, y="Player", orientation="h", text_auto=".2s",
+                         color=rank_by, color_continuous_scale=[T["panel"], T["accent"]])
+            fig.update_traces(textposition="outside", cliponaxis=False)
+            fig.update_layout(xaxis_title=rank_by.replace("_", " "), yaxis_title="", coloraxis_showscale=False)
+            st.plotly_chart(polish(fig, max(360, len(chart_data)*28)), use_container_width=True)
+        else:
+            st.info("No ranking metric columns were found.")
 
-# -------------------- Hardware lab --------------------
-elif page == "Hardware lab":
-    st.markdown('<div class="gs-section"><div class="gs-section-title">Hardware performance lab</div><div class="gs-section-note">Read the selected session metrics; thresholds are configurable indicators, not hardware diagnoses.</div></div>', unsafe_allow_html=True)
-    h1, h2, h3, h4 = st.columns(4)
-    h1.metric("AVG. FPS", fmt_num(avg_fps, 1))
-    h2.metric("MIN. FPS", fmt_num(filtered["FPS_Min"].mean(), 1) if "FPS_Min" in filtered else "—")
-    h3.metric("CPU LOAD", f"{fmt_num(avg_gpu if False else filtered['CPU_Usage'].mean(), 1)}%" if "CPU_Usage" in filtered else "—")
-    h4.metric("GPU TEMP", f"{fmt_num(avg_temp, 1)} °C" if not pd.isna(avg_temp) else "—")
+elif page == "Hardware Lab":
+    section("Hardware performance lab", "Dataset-based hardware readings, not live sensors from this computer.")
+    cols = st.columns(4)
+    cols[0].metric("AVG FPS", fmt(fps))
+    cols[1].metric("MIN FPS", fmt(filtered["FPS_Min"].mean()) if "FPS_Min" in filtered else "—")
+    cols[2].metric("CPU LOAD", f"{fmt(filtered['CPU_Usage'].mean())}%" if "CPU_Usage" in filtered else "—")
+    cols[3].metric("GPU TEMP", f"{fmt(temp)} °C" if not pd.isna(temp) else "—")
     left, right = st.columns(2)
     with left:
-        st.markdown("#### FPS distribution")
+        section("FPS distribution", "How the session frame rates are spread.")
         if "FPS_Avg" in filtered:
-            fig = px.histogram(filtered, x="FPS_Avg", nbins=22, marginal="box")
-            fig.update_traces(marker_color="#50e3e0", opacity=.85)
+            fig = px.histogram(filtered, x="FPS_Avg", nbins=24, marginal="box", color_discrete_sequence=[T["accent"]])
             fig.update_layout(xaxis_title="Average FPS", yaxis_title="Sessions")
             st.plotly_chart(polish(fig, 350), use_container_width=True)
     with right:
-        st.markdown("#### GPU temperature distribution")
+        section("GPU temperature", "Distribution of recorded GPU temperatures.")
         if "GPU_Temp" in filtered:
-            fig = px.histogram(filtered, x="GPU_Temp", nbins=18)
-            fig.update_traces(marker_color="#ff9b70", opacity=.85)
+            fig = px.histogram(filtered, x="GPU_Temp", nbins=20, color_discrete_sequence=[T["accent2"]])
             fig.update_layout(xaxis_title="GPU temperature (°C)", yaxis_title="Sessions")
             st.plotly_chart(polish(fig, 350), use_container_width=True)
     left, right = st.columns(2)
     with left:
-        st.markdown("#### Utilization vs FPS")
-        cols = [c for c in ["CPU_Usage", "GPU_Usage"] if c in filtered]
-        if cols and "FPS_Avg" in filtered:
-            melted = filtered.melt(id_vars=["FPS_Avg"], value_vars=cols, var_name="Component", value_name="Usage")
-            fig = px.scatter(melted, x="Usage", y="FPS_Avg", color="Component",
-                             color_discrete_map={"CPU_Usage":"#50e3e0","GPU_Usage":"#c8ff4d"}, opacity=.65)
+        section("Utilization vs FPS", "Compare recorded utilization against frame rate.")
+        usage_cols = [c for c in ["CPU_Usage", "GPU_Usage"] if c in filtered]
+        if usage_cols and "FPS_Avg" in filtered:
+            melted = filtered.melt(id_vars=["FPS_Avg"], value_vars=usage_cols, var_name="Component", value_name="Usage")
+            fig = px.scatter(melted, x="Usage", y="FPS_Avg", color="Component", color_discrete_sequence=[T["accent"], T["accent3"]], opacity=.72)
             fig.update_layout(xaxis_title="Utilization (%)", yaxis_title="Average FPS", legend_title="")
             st.plotly_chart(polish(fig, 330), use_container_width=True)
     with right:
-        st.markdown("#### Hardware session records")
+        section("Hardware records", "A preview of the selected session records.")
         cols = [c for c in ["Player", "Game_Mode", "FPS_Avg", "FPS_Min", "CPU_Usage", "GPU_Usage", "RAM_Usage_GB", "GPU_Temp"] if c in filtered]
         st.dataframe(filtered[cols].head(30), use_container_width=True, hide_index=True)
-    st.caption("Temperatures and utilization are taken from the supplied dataset. This dashboard does not read live PC sensors.")
+    st.caption("Note: these are readings in the supplied CSV. GameStats does not currently collect live PC sensor data.")
 
-# -------------------- Insights --------------------
-elif page == "Insights":
-    st.markdown('<div class="gs-section"><div class="gs-section-title">Insights & correlations</div><div class="gs-section-note">Statistical relationships are descriptive and do not prove cause and effect.</div></div>', unsafe_allow_html=True)
+elif page == "Intel & Correlations":
+    section("Intel & correlations", "Statistical relationships are descriptive, not proof of cause and effect.")
     numeric = filtered.select_dtypes(include="number")
     if numeric.shape[1] >= 2:
         corr = numeric.corr(method="pearson")
         fig = px.imshow(corr, text_auto=".2f", aspect="auto",
-                        color_continuous_scale=["#ff9278", "#151d27", "#c8ff4d"],
+                        color_continuous_scale=[T["accent2"], T["panel"], T["accent"]],
                         zmin=-1, zmax=1, origin="lower")
         fig.update_layout(coloraxis_colorbar_title="Pearson r")
-        st.plotly_chart(polish(fig, max(430, 32*len(corr.columns))), use_container_width=True)
-        preferred = [c for c in ["FPS_Avg", "Score", "Kills", "Deaths", "CPU_Usage", "GPU_Usage", "GPU_Temp"] if c in corr]
-        if "FPS_Avg" in corr:
-            st.markdown("#### What moves with FPS?")
-            pairs = corr["FPS_Avg"].drop(labels=["FPS_Avg"], errors="ignore").loc[preferred[1:] if len(preferred)>1 else corr.index].dropna().sort_values()
+        st.plotly_chart(polish(fig, max(430, 31*len(corr.columns))), use_container_width=True)
+        if "FPS_Avg" in corr.columns:
+            pairs = corr["FPS_Avg"].drop(labels=["FPS_Avg"], errors="ignore").dropna().sort_values()
             if len(pairs):
-                strongest = pairs.iloc[-1]
-                weakest = pairs.iloc[0]
-                a,b = st.columns(2)
-                a.markdown(f"""<div class="gs-card"><div class="gs-card-label">STRONGEST POSITIVE PAIR WITH FPS</div><div class="gs-card-value">{pairs.index[-1]}</div><div class="gs-card-note">Pearson r = {strongest:.2f}</div></div>""", unsafe_allow_html=True)
-                b.markdown(f"""<div class="gs-card"><div class="gs-card-label">MOST NEGATIVE PAIR WITH FPS</div><div class="gs-card-value">{pairs.index[0]}</div><div class="gs-card-note">Pearson r = {weakest:.2f}</div></div>""", unsafe_allow_html=True)
-        st.download_button("↓  Download correlation matrix", corr.to_csv().encode("utf-8"), "gamestats_correlation.csv", "text/csv")
+                left, right = st.columns(2)
+                with left:
+                    st.markdown(f"<div class='panel'><div class='panel-label'>MOST NEGATIVE ASSOCIATION WITH FPS</div><div class='panel-value'>{pairs.index[0]}</div><div class='panel-note'>Pearson r = {pairs.iloc[0]:.2f}</div></div>", unsafe_allow_html=True)
+                with right:
+                    st.markdown(f"<div class='panel'><div class='panel-label'>MOST POSITIVE ASSOCIATION WITH FPS</div><div class='panel-value'>{pairs.index[-1]}</div><div class='panel-note'>Pearson r = {pairs.iloc[-1]:.2f}</div></div>", unsafe_allow_html=True)
+        st.download_button("↓ Download correlation matrix", corr.to_csv().encode("utf-8"), "gamestats_correlation.csv")
     else:
-        st.info("At least two numeric columns are needed to calculate correlations.")
-    if "Game_Mode" in filtered and "Score" in filtered:
-        st.markdown("#### Score by game mode")
-        gm = filtered.groupby("Game_Mode", as_index=False)["Score"].mean().sort_values("Score", ascending=False)
-        fig = px.bar(gm, x="Game_Mode", y="Score", text_auto=".0f")
-        fig.update_traces(marker_color="#b49aff", textposition="outside")
-        st.plotly_chart(polish(fig, 300), use_container_width=True)
+        st.info("At least two numeric columns are required for correlations.")
+    if {"Game_Mode", "Score"}.issubset(filtered.columns):
+        section("Score by game mode", "Average score for each selected mode.")
+        by_mode = filtered.groupby("Game_Mode", as_index=False)["Score"].mean().sort_values("Score", ascending=False)
+        fig = px.bar(by_mode, x="Game_Mode", y="Score", text_auto=".0f", color="Game_Mode", color_discrete_sequence=T["plot_colors"])
+        fig.update_traces(textposition="outside")
+        st.plotly_chart(polish(fig, 310), use_container_width=True)
 
-# -------------------- Data explorer --------------------
-elif page == "Data explorer":
-    st.markdown('<div class="gs-section"><div class="gs-section-title">Dataset explorer</div><div class="gs-section-note">Inspect, search and export the rows behind the visuals.</div></div>', unsafe_allow_html=True)
-    a,b,c = st.columns(3)
-    a.metric("Rows", f"{len(filtered):,}")
-    b.metric("Columns", f"{len(filtered.columns):,}")
-    c.metric("Missing cells", f"{int(filtered.isna().sum().sum()):,}")
-    search = st.text_input("Search across text columns", placeholder="Type a player or game mode...")
+elif page == "Data Explorer":
+    section("Dataset explorer", "Search, inspect, and export the records behind the dashboard.")
+    a, b, c = st.columns(3)
+    a.metric("ROWS", f"{len(filtered):,}")
+    b.metric("COLUMNS", f"{len(filtered.columns):,}")
+    c.metric("MISSING CELLS", f"{int(filtered.isna().sum().sum()):,}")
+    search = st.text_input("SEARCH TEXT", placeholder="Search a player, game, or mode...")
     view = filtered.copy()
     if search:
         text_cols = view.select_dtypes(include=["object", "string"]).columns
@@ -396,21 +465,22 @@ elif page == "Data explorer":
         for col in text_cols:
             mask |= view[col].astype(str).str.contains(search, case=False, na=False)
         view = view[mask]
-    st.dataframe(view, use_container_width=True, hide_index=True, height=480)
+    st.dataframe(view, use_container_width=True, hide_index=True, height=470)
     left, right = st.columns(2)
-    left.download_button("↓  Download visible rows", view.to_csv(index=False).encode("utf-8"), "gamestats_visible_rows.csv", "text/csv", use_container_width=True)
-    right.download_button("↓  Download missing-value report", filtered.isna().sum().rename("Missing_Values").to_csv().encode("utf-8"), "gamestats_missing_values.csv", "text/csv", use_container_width=True)
-    with st.expander("Column types and data quality"):
-        info_df = pd.DataFrame({
+    left.download_button("↓ Download visible rows", view.to_csv(index=False).encode("utf-8"), "gamestats_visible_rows.csv", use_container_width=True)
+    right.download_button("↓ Download missing-value report", filtered.isna().sum().rename("Missing_Values").to_csv().encode("utf-8"), "gamestats_missing_values.csv", use_container_width=True)
+    with st.expander("Column types & data quality"):
+        info = pd.DataFrame({
             "Column": filtered.columns,
             "Data type": [str(filtered[c].dtype) for c in filtered.columns],
             "Missing values": [int(filtered[c].isna().sum()) for c in filtered.columns],
             "Unique values": [int(filtered[c].nunique(dropna=True)) for c in filtered.columns],
         })
-        st.dataframe(info_df, use_container_width=True, hide_index=True)
+        st.dataframe(info, use_container_width=True, hide_index=True)
 
 st.divider()
 st.markdown(
-    '<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:#718096;font-size:.78rem"><span>GAMESTATS / PERFORMANCE LAB</span><span>Built with Python · Pandas · Streamlit · Plotly</span><span>Sample data may be synthetic</span></div>',
-    unsafe_allow_html=True
+    f"<div class='eyebrow'>GAMESTATS / {T['name']} // BUILT FOR THE NEXT SESSION</div>",
+    unsafe_allow_html=True,
 )
+st.caption("Built with Python • Pandas • Streamlit • Plotly | Dataset may contain synthetic/sample records. Not a live hardware sensor.")

@@ -1,51 +1,65 @@
-# GameStats — Gaming Performance & Hardware Analyzer
+# GameStats — Performance Intelligence
 
-A beginner-friendly Streamlit frontend for the provided GameStats GTA 5 dataset and analysis outputs.
+A cinematic Streamlit dashboard for gaming-session analytics and hardware metrics, with **32 curated themes across four collections**. Choose a collection and then a theme in the sidebar; the dashboard palette, cards, and charts update to match. The visual system uses softer accent colours, muted secondary text, restrained glow effects, and improved typography to reduce eye strain.
 
+### Theme collections
+- **Game Worlds (8):** Los Santos / GTA V, Protocol / VALORANT, Counter-Strike 2, Night City / Cyberpunk, The Outlands / Apex, Overworld / Minecraft, The Lands Between / Elden Ring, Red Dead / Frontier.
+- **Neon & Sci-Fi (8):** Neon Noir, Synthwave Dusk, Arctic Cyber, Plasma Core, Deep Space, Holographic, Circuit Garden, Quantum Blue.
+- **Earth & Luxe (8):** Moss & Stone, Sandstone, Forest Retreat, Terracotta Studio, Olive & Brass, Midnight Walnut, Desert Dusk, Slate & Sage.
+- **Studio & Minimal (8):** Obsidian, Graphite, Ivory & Ink, Midnight Blue, Burgundy Velvet, Espresso, Moonstone, Coastal Mist.
+
+Themes are visual palettes only. The supplied dataset remains the same regardless of the selected theme.
 ## Features
+- Command Center with FPS, KDA, win rate, score, sessions, player count and hardware KPI cards
+- Player rankings by score, KDA, FPS, kills, win rate or wins
+- Hardware Lab with FPS and temperature distributions and utilization comparisons
+- Intel & Correlations with a correlation heatmap and score-by-mode analysis
+- Data Explorer with text search, data-quality details and CSV exports
+- Sidebar filters and compatible CSV upload
+- Robust default dataset discovery from `data/` and the project root
 
-- Dark, neon-accented dashboard
-- Overview KPI cards
-- Player leaderboard with ranking choices
-- FPS, CPU, GPU, RAM, and temperature charts
-- Correlation heatmap and statistical insights
-- Sidebar filters for game, mode, and player
-- CSV upload and downloads
-- Dataset explorer and missing-value report
+## Project structure
+```text
+GameStats/
+├── app.py
+├── requirements.txt
+├── README.md
+├── .gitignore
+├── run_gamestats.bat
+└── data/
+    ├── gta5_cleaned_data.csv
+    ├── game_stats.csv
+    ├── gta5_correlation_matrix.csv
+    ├── gta5_descriptive_statistics.csv
+    ├── gta5_game_mode_analysis.csv
+    └── gta5_player_leaderboard.csv
+```
 
 ## Run on Windows 10
+1. Install Python 3.10 or newer from https://www.python.org/downloads/. During setup, enable **Add Python to PATH**.
+2. Extract this project folder.
+3. Double-click `run_gamestats.bat`.
+4. Wait for the app to open in your browser.
 
-1. Install Python 3.10 or newer from https://www.python.org/downloads/
-   - During installation, tick **Add Python to PATH**.
-2. Extract the downloaded ZIP.
-3. Open the extracted `GameStats_Frontend` folder.
-4. Double-click `run_gamestats.bat`.
-5. Wait for installation to finish. A browser tab should open with the dashboard.
+If needed, open Command Prompt in the project folder and run:
+```bat
+py -m venv .venv
+.venv\Scripts\activate
+py -m pip install -r requirements.txt
+py -m streamlit run app.py
+```
 
-If the batch file does not work:
-1. Open the project folder in File Explorer.
-2. Click the address bar, type `cmd`, and press Enter.
-3. Run these commands one at a time:
+## Deploy with GitHub + Streamlit Community Cloud
+1. Upload the project files and the complete `data/` folder to GitHub. Do **not** upload `.venv`.
+2. In Streamlit Community Cloud, create an app from your repository, select branch `main`, and set the main file path to `app.py`.
+3. Deploy. Streamlit installs dependencies from `requirements.txt`.
 
-   ```bat
-   py -m venv .venv
-   .venv\Scripts\activate
-   py -m pip install -r requirements.txt
-   py -m streamlit run app.py
-   ```
+## Dataset behaviour
+The app loads `data/gta5_cleaned_data.csv` first, then `data/game_stats.csv`. It also supports those filenames at the project root as a fallback. A CSV can also be uploaded from the sidebar.
 
-## Dataset
+The provided sample dataset contains 300 rows. Treat its readings as sample data; the app does not read live CPU/GPU sensors and does not currently connect to a game API.
 
-The app defaults to `data/gta5_cleaned_data.csv` and includes the supplied analysis CSV files. You can upload another compatible CSV from the sidebar.
-
-Expected columns include `Player`, `Game`, `Game_Mode`, `Kills`, `Deaths`, `Assists`, `Wins`, `Matches`, `FPS_Avg`, `FPS_Min`, `CPU_Usage`, `GPU_Usage`, `RAM_Usage_GB`, `GPU_Temp`, and `Score`.
-
-## Important limitation
-
-The uploaded backend notebook performs offline data analysis; it does not currently expose HTTP API endpoints. This frontend reads CSV data. It does **not** measure live FPS, temperatures, or sensor values. To connect to a FastAPI backend later, add API endpoints and replace the CSV-loading functions with HTTP requests.
-
-The included dataset may be synthetic. Do not present synthetic readings as measurements from real gaming hardware.
-
-## GitHub
-
-Commit the whole project folder to your shared repository. Avoid committing virtual environments (`.venv`) or secrets.
+## Troubleshooting
+- **No dataset found:** ensure `data/gta5_cleaned_data.csv` or `data/game_stats.csv` is committed to GitHub inside `data/`.
+- **ModuleNotFoundError:** confirm `requirements.txt` is committed and wait for Streamlit Cloud to install it.
+- **App did not refresh:** open the Streamlit app menu and use reboot/restart if available, or wait for the latest GitHub commit to deploy.

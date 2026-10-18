@@ -1,6 +1,18 @@
-.venv/
-venv/
+# Python
 __pycache__/
 *.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+ENV/
+
+# Secrets and local configuration
 .streamlit/secrets.toml
+.env
+
+# OS/editor files
 .DS_Store
+Thumbs.db
+.vscode/
+.idea/
