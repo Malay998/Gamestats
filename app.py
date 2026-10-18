@@ -78,9 +78,26 @@ with st.sidebar:
     st.caption("Performance Intelligence")
     theme_group = st.selectbox("THEME COLLECTION", list(THEME_GROUPS.keys()), index=0, help="Browse curated visual collections.")
     group_theme_names = [item[0] for item in THEME_GROUPS[theme_group]]
-    theme_name = st.selectbox("✦ CHOOSE YOUR THEME", group_theme_names, index=0, help="Switch the complete dashboard palette and chart colours.")
+    theme_name = st.selectbox("✦ CHOOSE YOUR THEME", group_theme_names, index=0, help="Choose a complete visual palette.")
+    theme_mode = st.radio(
+        "THEME BEHAVIOUR",
+        ["Palette only", "Full experience"],
+        index=1,
+        help="Palette only changes colours. Full experience also changes typography, panel shapes, spacing, and interface details.",
+    )
     T = THEMES[theme_name]
-    st.caption(f"{len(THEMES)} curated themes · {theme_group.title()}")
+    # The Full experience mode gives each collection its own visual language, not just a new accent colour.
+    STYLE_PROFILES = {
+        "GAME WORLDS": {"display": "Rajdhani", "body": "Barlow", "mono": "IBM Plex Mono", "radius": "10px", "tracking": "-0.035em", "shadow": "0 14px 34px rgba(0,0,0,.18)"},
+        "NEON & SCI-FI": {"display": "Space Grotesk", "body": "Space Grotesk", "mono": "DM Mono", "radius": "15px", "tracking": "-0.055em", "shadow": "0 0 28px {accent}12"},
+        "EARTH & LUXE": {"display": "Manrope", "body": "Manrope", "mono": "IBM Plex Mono", "radius": "18px", "tracking": "-0.045em", "shadow": "0 12px 32px rgba(0,0,0,.14)"},
+        "STUDIO & MINIMAL": {"display": "Inter", "body": "Inter", "mono": "IBM Plex Mono", "radius": "12px", "tracking": "-0.04em", "shadow": "0 8px 24px rgba(0,0,0,.10)"},
+    }
+    if theme_mode == "Full experience":
+        style = STYLE_PROFILES[theme_group]
+    else:
+        style = {"display": "Space Grotesk", "body": "Space Grotesk", "mono": "DM Mono", "radius": "14px", "tracking": "-0.045em", "shadow": "none"}
+    st.caption(f"{len(THEMES)} themes · {theme_group.title()} · {theme_mode}")
     st.divider()
     page = st.radio(
         "COMMAND MENU",
@@ -91,34 +108,38 @@ with st.sidebar:
     st.markdown("#### DATA INTAKE")
     uploaded = st.file_uploader("Drop a CSV dataset", type=["csv"], help="Use a CSV with columns such as Player, FPS_Avg, Score, CPU_Usage and GPU_Usage.")
     st.caption("Default source: project data folder")
-    st.markdown(f"<div class='side-status'><span class='status-dot'></span> SYSTEM READY <span class='side-version'>BUILD 04.0</span></div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='side-status'><span class='status-dot'></span> SYSTEM READY <span class='side-version'>BUILD 05.0</span></div>", unsafe_allow_html=True)
 
 st.markdown(f"""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 :root {{
  --bg:{T['bg']}; --panel:{T['panel']}; --line:{T['line']}; --muted:{T['muted']};
  --text:{T['text']}; --accent:{T['accent']}; --accent2:{T['accent2']}; --accent3:{T['accent3']};
+ --font-body:'{style['body']}',sans-serif; --font-display:'{style['display']}',sans-serif; --font-mono:'{style['mono']}',monospace;
+ --radius:{style['radius']}; --tracking:{style['tracking']}; --card-shadow:{style['shadow'].replace('{accent}', T['accent'])};
 }}
-html, body, [class*="css"] {{ font-family:'Space Grotesk',sans-serif; }}
+html, body, [class*="css"] {{ font-family:var(--font-body); }}
 .stApp {{ background:radial-gradient(ellipse at 80% -10%, {T['accent']}13, transparent 34%), var(--bg); color:var(--text); }}
 [data-testid="stHeader"] {{ background:rgba(8,11,16,.78); }}
 [data-testid="stSidebar"] {{ background:#090C12; border-right:1px solid var(--line); }}
 [data-testid="stSidebar"] * {{ color:#D4D9E1; }}
 .block-container {{ max-width:1500px; padding-top:1.5rem; padding-bottom:3rem; }}
-h1,h2,h3,h4 {{ letter-spacing:-.045em; color:var(--text); }}
+h1,h2,h3,h4 {{ font-family:var(--font-display); letter-spacing:var(--tracking); color:var(--text); }}
 p, label, .stCaption {{ color:var(--muted); }}
-[data-testid="stMetric"] {{ background:linear-gradient(145deg, {T['panel']}, #0D1118); border:1px solid var(--line); padding:17px 18px; border-radius:16px; min-height:118px; }}
+[data-testid="stMetric"] {{ background:linear-gradient(145deg, {T['panel']}, {T['bg']}); border:1px solid var(--line); padding:17px 18px; border-radius:var(--radius); min-height:118px; box-shadow:var(--card-shadow); transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease; }}
+[data-testid="stMetric"]:hover {{ transform:translateY(-2px); border-color:color-mix(in srgb,var(--accent) 48%,var(--line)); }}
 [data-testid="stMetricLabel"] {{ color:var(--muted); font-size:.78rem; letter-spacing:.07em; text-transform:uppercase; }}
-[data-testid="stMetricValue"] {{ color:var(--text); font-size:1.75rem; font-weight:650; letter-spacing:-.035em; }}
+[data-testid="stMetricValue"] {{ color:var(--text); font-family:var(--font-display); font-size:1.75rem; font-weight:700; letter-spacing:var(--tracking); }}
 [data-testid="stMetricDelta"] {{ font-size:.76rem; }}
-[data-testid="stPlotlyChart"] {{ border:1px solid var(--line); border-radius:16px; padding:7px; background:rgba(12,16,23,.6); }}
+[data-testid="stPlotlyChart"] {{ border:1px solid var(--line); border-radius:var(--radius); padding:7px; background:color-mix(in srgb,var(--panel) 68%,transparent); box-shadow:var(--card-shadow); transition:border-color .2s ease; }}
+[data-testid="stPlotlyChart"]:hover {{ border-color:color-mix(in srgb,var(--accent) 35%,var(--line)); }}
 [data-testid="stDataFrame"] {{ border:1px solid var(--line); border-radius:12px; overflow:hidden; }}
-.stButton>button, .stDownloadButton>button {{ border-radius:10px; border:1px solid var(--accent); background:color-mix(in srgb, var(--accent) 82%, #242832); color:#101319; font-weight:650; transition:all .2s ease; }}
-.stButton>button:hover, .stDownloadButton>button:hover {{ filter:brightness(1.04); border-color:var(--accent2); color:#101319; }}
+.stButton>button, .stDownloadButton>button {{ border-radius:var(--radius); border:1px solid color-mix(in srgb,var(--accent) 70%,var(--line)); background:color-mix(in srgb, var(--accent) 22%, var(--panel)); color:var(--text); font-family:var(--font-body); font-weight:650; transition:transform .2s ease,background .2s ease,border-color .2s ease; }}
+.stButton>button:hover, .stDownloadButton>button:hover {{ transform:translateY(-1px); border-color:var(--accent2); background:color-mix(in srgb,var(--accent) 30%,var(--panel)); color:var(--text); }}
 [data-testid="stFileUploader"] {{ border:1px dashed var(--line); border-radius:14px; background:#0D1219; padding:8px; }}
 hr {{ border-color:var(--line); }}
-.side-brand {{ font-size:2.2rem; font-weight:700; letter-spacing:-.1em; color:var(--text); }}
+.side-brand {{ font-family:var(--font-display); font-size:2.2rem; font-weight:800; letter-spacing:-.1em; color:var(--text); }}
 .side-brand span {{ color:var(--accent); }}
 .side-status {{ border:1px solid var(--line); background:#10151D; border-radius:9px; padding:9px 10px; color:var(--muted); font-size:.69rem; letter-spacing:.08em; }}
 .status-dot {{ display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--accent3); margin-right:7px; box-shadow:0 0 5px color-mix(in srgb, var(--accent3) 55%, transparent); }}
@@ -127,21 +148,25 @@ hr {{ border-color:var(--line); }}
 [data-testid="stSelectbox"] [data-baseweb="select"] > div {{ border-color:var(--line); border-radius:10px; background:#12171E; }}
 .stMarkdown, .stText, .stCaption {{ line-height:1.55; }}
 ::selection {{ background:var(--accent); color:#101319; }}
-.eyebrow {{ font-family:'DM Mono',monospace; color:var(--accent); font-size:.70rem; letter-spacing:.15em; text-transform:uppercase; }}
+.eyebrow {{ font-family:var(--font-mono); color:var(--accent); font-size:.70rem; letter-spacing:.15em; text-transform:uppercase; }}
 .hero {{ position:relative; overflow:hidden; border:1px solid var(--line); border-radius:22px; padding:28px 30px; background:{T['gradient']}; margin-bottom:18px; }}
 .hero:after {{ content:'GS'; position:absolute; right:25px; top:-38px; font-size:12rem; font-weight:700; letter-spacing:-.13em; color:rgba(255,255,255,.025); pointer-events:none; }}
-.hero-title {{ font-size:clamp(2rem,3.8vw,3.35rem); line-height:1.04; font-weight:700; letter-spacing:-.065em; color:var(--text); max-width:800px; text-wrap:balance; }}
+.hero-title {{ font-size:clamp(2rem,3.8vw,3.35rem); line-height:1.04; font-family:var(--font-display); font-weight:700; letter-spacing:var(--tracking); color:var(--text); max-width:800px; text-wrap:balance; }}
 .hero-title span {{ color:var(--accent); }}
 .hero-sub {{ color:var(--muted); margin-top:12px; font-size:.94rem; line-height:1.65; max-width:650px; }}
-.chip {{ display:inline-block; padding:6px 10px; border:1px solid var(--line); border-radius:999px; color:var(--text); background:rgba(9,12,18,.42); font-family:'DM Mono',monospace; font-size:.67rem; letter-spacing:.04em; margin:15px 6px 0 0; }}
+.chip {{ display:inline-block; padding:6px 10px; border:1px solid var(--line); border-radius:999px; color:var(--text); background:rgba(9,12,18,.42); font-family:var(--font-mono); font-size:.67rem; letter-spacing:.04em; margin:15px 6px 0 0; }}
 .section-head {{ display:flex; align-items:end; justify-content:space-between; gap:12px; margin:20px 0 10px; }}
 .section-title {{ color:var(--text); font-size:1.22rem; font-weight:700; letter-spacing:-.04em; }}
 .section-note {{ color:var(--muted); font-size:.8rem; margin-top:3px; }}
-.panel {{ border:1px solid var(--line); background:linear-gradient(145deg, {T['panel']}, #0D1118); border-radius:16px; padding:17px 18px; }}
-.panel-label {{ color:var(--muted); font-family:'DM Mono',monospace; text-transform:uppercase; letter-spacing:.1em; font-size:.68rem; }}
+.panel {{ border:1px solid var(--line); background:linear-gradient(145deg, {T['panel']}, {T['bg']}); border-radius:var(--radius); padding:17px 18px; box-shadow:var(--card-shadow); }}
+.panel-label {{ color:var(--muted); font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.1em; font-size:.68rem; }}
 .panel-value {{ color:var(--text); font-size:1.45rem; font-weight:650; letter-spacing:-.025em; margin-top:8px; overflow-wrap:anywhere; }}
 .panel-note {{ color:var(--accent); font-size:.77rem; margin-top:5px; }}
 div[data-testid="stRadio"] label p {{ font-weight:500; }}
+@keyframes gs-enter {{ from {{ opacity:0; transform:translateY(5px); }} to {{ opacity:1; transform:translateY(0); }} }}
+.hero {{ animation:gs-enter .48s ease-out both; }}
+[data-testid="stMetric"], [data-testid="stPlotlyChart"], .panel {{ animation:gs-enter .38s ease-out both; }}
+@media (prefers-reduced-motion: reduce) {{ *, *::before, *::after {{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }} }}
 footer {{ visibility:hidden; }}
 #MainMenu {{ visibility:hidden; }}
 </style>
@@ -217,7 +242,7 @@ def section(title, note=""):
 PLOT_LAYOUT = dict(
     paper_bgcolor="rgba(0,0,0,0)",
     plot_bgcolor="rgba(0,0,0,0)",
-    font=dict(family="Space Grotesk, sans-serif", color=T["muted"]),
+    font=dict(family=f"{style['body']}, sans-serif", color=T["muted"]),
     margin=dict(l=20, r=20, t=38, b=18),
     legend=dict(bgcolor="rgba(0,0,0,0)"),
     xaxis=dict(gridcolor=T["line"], zerolinecolor=T["line"]),
@@ -311,6 +336,26 @@ if page == "Command Center":
     cols[2].metric("GPU LOAD", f"{fmt(gpu)}%" if not pd.isna(gpu) else "—")
     cols[3].metric("GPU TEMP", f"{fmt(temp)} °C" if not pd.isna(temp) else "—")
 
+    # Explainable, data-grounded observations (not AI claims or causal conclusions).
+    insight_bits = []
+    if {"Player", "Score"}.issubset(filtered.columns) and not filtered.empty:
+        player_means = filtered.groupby("Player")["Score"].mean().dropna().sort_values(ascending=False)
+        if not player_means.empty:
+            insight_bits.append(f"**Top average score:** {player_means.index[0]} ({player_means.iloc[0]:,.1f}).")
+    if {"Game_Mode", "Win_Rate"}.issubset(filtered.columns):
+        mode_rates = filtered.groupby("Game_Mode")["Win_Rate"].mean().dropna().sort_values(ascending=False)
+        if not mode_rates.empty:
+            insight_bits.append(f"**Highest average win rate by mode:** {mode_rates.index[0]} ({mode_rates.iloc[0]:.1f}%).")
+    if {"FPS_Avg", "GPU_Usage"}.issubset(filtered.columns) and filtered["FPS_Avg"].notna().sum() > 1 and filtered["GPU_Usage"].notna().sum() > 1:
+        association = filtered[["FPS_Avg", "GPU_Usage"]].corr().iloc[0, 1]
+        if pd.notna(association):
+            strength = "stronger" if abs(association) >= .6 else "moderate" if abs(association) >= .3 else "weak"
+            direction = "positive" if association > 0 else "negative" if association < 0 else "near-zero"
+            insight_bits.append(f"**FPS / GPU-load association:** {direction} (Pearson r = {association:.2f}; {strength}). This is descriptive, not causal.")
+    if insight_bits:
+        section("Signal briefing", "Quick observations generated from the currently filtered records.")
+        st.markdown("\n".join([f"- {item}" for item in insight_bits]))
+
     left, right = st.columns([1.25, 1])
     with left:
         section("FPS by game mode", "Which modes are running at the highest average frame rate?")
@@ -364,6 +409,22 @@ elif page == "Player Rankings":
         rank_options = [c for c in ["Score", "KDA", "FPS_Avg", "Kills", "Win_Rate", "Wins"] if c in filtered]
         if rank_options:
             rank_by = st.selectbox("RANK PLAYERS BY", rank_options, index=0)
+            with st.expander("⚔️ Compare two players", expanded=False):
+                available_players = sorted(filtered["Player"].dropna().astype(str).unique())
+                if len(available_players) >= 2:
+                    ca, cb = st.columns(2)
+                    player_a = ca.selectbox("PLAYER A", available_players, index=0, key="compare_player_a")
+                    player_b = cb.selectbox("PLAYER B", available_players, index=1, key="compare_player_b")
+                    compare_metrics = [c for c in ["Score", "KDA", "FPS_Avg", "Win_Rate", "Kills", "Deaths", "Assists"] if c in filtered]
+                    comparison = filtered[filtered["Player"].astype(str).isin([player_a, player_b])].groupby("Player")[compare_metrics].mean().reindex([player_a, player_b])
+                    st.dataframe(comparison.round(2), use_container_width=True)
+                    if len(compare_metrics) >= 2:
+                        compare_long = comparison.reset_index().melt(id_vars="Player", var_name="Metric", value_name="Average")
+                        fig = px.bar(compare_long, x="Metric", y="Average", color="Player", barmode="group", color_discrete_sequence=T["plot_colors"])
+                        fig.update_layout(xaxis_title="Metric", yaxis_title="Average value", legend_title="Player")
+                        st.plotly_chart(polish(fig, 320), use_container_width=True)
+                else:
+                    st.info("Select at least two players in the sidebar to compare them.")
             agg = {c: "mean" for c in ["Score", "KDA", "FPS_Avg", "Win_Rate", "GPU_Usage"] if c in filtered}
             for c in ["Kills", "Deaths", "Assists", "Wins", "Matches"]:
                 if c in filtered:
@@ -477,6 +538,16 @@ elif page == "Data Explorer":
             "Unique values": [int(filtered[c].nunique(dropna=True)) for c in filtered.columns],
         })
         st.dataframe(info, use_container_width=True, hide_index=True)
+        st.markdown("**Quick validation checks**")
+        checks = []
+        for col, low, high, label in [("FPS_Avg", 0, None, "FPS should not be negative"), ("Win_Rate", 0, 100, "Win rate should be between 0 and 100%"), ("CPU_Usage", 0, 100, "CPU usage should be between 0 and 100%"), ("GPU_Usage", 0, 100, "GPU usage should be between 0 and 100%"), ("GPU_Temp", -20, 150, "GPU temperature outside a broad plausible range")]:
+            if col in filtered:
+                series = filtered[col].dropna()
+                bad = int(((series < low) | (series > high if high is not None else False)).sum())
+                checks.append({"Check": label, "Column": col, "Flagged rows": bad, "Status": "Review" if bad else "OK"})
+        if checks:
+            st.dataframe(pd.DataFrame(checks), use_container_width=True, hide_index=True)
+            st.caption("These are broad sanity checks. Flagged values are not automatically changed or deleted.")
 
 st.divider()
 st.markdown(

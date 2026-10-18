@@ -1,6 +1,6 @@
 # GameStats — Performance Intelligence
 
-A cinematic Streamlit dashboard for gaming-session analytics and hardware metrics, with **32 curated themes across four collections**. Choose a collection and then a theme in the sidebar; the dashboard palette, cards, and charts update to match. The visual system uses softer accent colours, muted secondary text, restrained glow effects, and improved typography to reduce eye strain.
+A cinematic Streamlit dashboard for gaming-session analytics and hardware metrics, with **32 curated themes across four collections**. Choose a collection and theme in the sidebar, then select one of two theme behaviours: **Palette only** changes colours while keeping the interface structure consistent; **Full experience** also changes typography, panel shape, spacing character, and other visual details by collection. The visual system uses softer accent colours, muted secondary text, restrained glow effects, subtle motion, and reduced-motion support to reduce eye strain.
 
 ### Theme collections
 - **Game Worlds (8):** Los Santos / GTA V, Protocol / VALORANT, Counter-Strike 2, Night City / Cyberpunk, The Outlands / Apex, Overworld / Minecraft, The Lands Between / Elden Ring, Red Dead / Frontier.
@@ -8,10 +8,12 @@ A cinematic Streamlit dashboard for gaming-session analytics and hardware metric
 - **Earth & Luxe (8):** Moss & Stone, Sandstone, Forest Retreat, Terracotta Studio, Olive & Brass, Midnight Walnut, Desert Dusk, Slate & Sage.
 - **Studio & Minimal (8):** Obsidian, Graphite, Ivory & Ink, Midnight Blue, Burgundy Velvet, Espresso, Moonstone, Coastal Mist.
 
-Themes are visual palettes only. The supplied dataset remains the same regardless of the selected theme.
+Themes affect presentation only. The supplied dataset remains the same regardless of the selected theme. Web fonts load from Google Fonts when internet access is available; system fallbacks are included.
 ## Features
 - Command Center with FPS, KDA, win rate, score, sessions, player count and hardware KPI cards
-- Player rankings by score, KDA, FPS, kills, win rate or wins
+- Player rankings by score, KDA, FPS, kills, win rate or wins, plus a two-player comparison view
+- Explainable signal briefing based on currently filtered data
+- Broad sanity checks for FPS, win rate, CPU/GPU usage and GPU temperature; flagged values are not automatically changed
 - Hardware Lab with FPS and temperature distributions and utilization comparisons
 - Intel & Correlations with a correlation heatmap and score-by-mode analysis
 - Data Explorer with text search, data-quality details and CSV exports
